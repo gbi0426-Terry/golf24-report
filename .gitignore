@@ -1,0 +1,21 @@
+# 依賴
+node_modules/
+.pnp
+.pnp.js
+
+# 建置產物
+.next/
+out/
+dist/
+build/
+
+# 環境變數 / 秘密金鑰（永遠不要 commit）
+.env
+.env.local
+.env*.local
+
+# 系統 / 編輯器
+.DS_Store
+*.log
+.vscode/
+.idea/
