@@ -15,8 +15,10 @@
 球室看到 QR Code
 → 掃描後開啟 LINE LIFF 預約頁
 → LINE Login / LIFF 取得學員 LINE 身分
-→ 選課程、希望日期時段、指定教練（可選）
+→ 選課程、指定教練（可選）
+→ 系統查詢 Golf24 場地空位，只顯示可預訂日期時段
 → 送出預約
+→ 系統建立教練課預約，並保留 / 建立 Golf24 場地預約
 → 系統個別通知指定教練、老闆、管理者
 → 店家確認場地與時間後，LINE 發確認與訂金連結
 ```
@@ -55,7 +57,9 @@ Phase 1 只有「店家後台」需要登入（用 Supabase Auth，單一 admin 
 
 - 學員送出時**不選精確時段**，只選「日期 + 上午/下午/晚上」。
 - 學員可選指定教練；若不指定，由店家後台分配。
-- `confirmed` 由店家人工設定確切 `start_at`（避免雙重預約）。
+- 學員可選的日期時段必須先通過 Golf24 場地空位檢查；已被 Golf24 預約的時間不可顯示為可選。
+- 若 Golf24 場地預約 API 可穩定建立預約，學員送出後同步建立場地預約；若建立失敗，不能建立正式教練預約，需提示重選時段。
+- `confirmed` 由店家人工確認教練與場地資訊後成立。
 - 狀態變更要留時間戳與操作者。
 - 新預約建立後，系統立即觸發個人 LINE 通知。
 
@@ -128,13 +132,27 @@ Phase 1 課程預設：
 | coach_id | uuid fk→coaches | 可為 null（還不確定教練） |
 | course_id | uuid fk→courses | |
 | preferred_date | date | 學員希望日期 |
-| preferred_slot | text | 上午 / 下午 / 晚上 |
-| start_at | timestamptz | 店家確認後的確切時間，可為 null |
+| preferred_slot | text | 上午 / 下午 / 晚上；若已選精確時間可作為顯示分類 |
+| start_at | timestamptz | 學員選定且 Golf24 有空的開始時間 |
+| end_at | timestamptz | 學員選定且 Golf24 有空的結束時間 |
 | status | text/enum | pending / confirmed / paid / completed / cancelled / no_show |
 | venue_status | text | 場地確認：unchecked / confirmed（人工） |
 | admin_note | text | 店家備註 |
 | source | text | QR / LINE / 手動建立 |
 | campaign | text | QR campaign 參數 |
+
+### venue_bookings（Golf24 場地預約）
+| 欄位 | 型別 | 說明 |
+|------|------|------|
+| booking_id | uuid fk→bookings | 對應教練課預約 |
+| provider | text | golf24_gobooking |
+| room_id | text | Golf24 QRID，例如 130128070312263491 |
+| external_booking_id | text | Golf24 建立預約後回傳的訂單 / 預約編號；若無則存 null |
+| start_at | timestamptz | 場地開始時間 |
+| end_at | timestamptz | 場地結束時間 |
+| status | text | available_checked / held / booked / failed / cancelled |
+| raw_payload | jsonb | Golf24 API 回傳原始資料，供除錯 |
+| error_message | text | 建立或取消失敗原因 |
 
 ### payments（付款）
 | 欄位 | 型別 | 說明 |
@@ -178,8 +196,20 @@ Phase 1 課程預設：
 ### 學員端（public）
 - `/`：落地頁（移植 `index.html`）。課程、教練、FAQ 由 DB 驅動。
 - `/booking` 或 `/liff/booking`：LINE LIFF 預約頁，執行 `liff.init()`，取得 profile / friendship。
+- `GET /api/venue/golf24/availability?roomId=...&date=...&durationMin=...`：讀取 Golf24 已預約時段，回傳可選時段。
 - `POST /api/bookings`：建立 member（依 `line_user_id` 優先，其次 phone upsert）+ booking，狀態 `pending`。
 - `/pay/[bookingId]`：導向綠界付款；`POST /api/ecpay/callback` 接回呼寫 `payments`。
+
+### Golf24 goBooking 場地整合
+- 目前已確認 `https://golf24.com.tw/vrgolf/room.html?130128070312263491` 是 goBooking 前端頁，房間 ID / QRID 為 `130128070312263491`。
+- 前端公開查詢 endpoint：
+  - `GET /vrgolf/ownerinfo?QRID={roomId}`
+  - `GET /vrgolf/get_room_opening?QRID={roomId}`：營業時間、方案、價格、可預約天數。
+  - `GET /vrgolf/get_inroom_info?QRID={roomId}`：場地資訊。
+  - `GET /vrgolf/get_room_bookingtime?QRID={roomId}`：已被預約的時間區間。
+- Phase 1 必須先用查詢 endpoint 計算可選時段，避免讓客戶選到已被占用時段。
+- 自動建立 Golf24 場地預約需另行驗證 `bookingnow` / `cart_bookingnow` 的 POST 欄位、付款流程與授權條件；未驗證完成前，不可假裝已完成場地預約。
+- 不繞過登入、付款、驗證碼或網站權限；若 Golf24 有正式 API，優先改用正式 API。
 
 ### LINE 綁定頁
 - `/bind/coach`：教練加官方 LINE 後，用 LIFF / LINE Login 綁定 `coaches.line_user_id`。
@@ -216,6 +246,8 @@ Phase 1 課程預設：
 
 - [ ] 學員能在落地頁送出報名，資料寫進 Supabase。
 - [ ] 學員能從 LIFF 預約頁登入並保存 `line_user_id`。
+- [ ] 學員選日期時，系統能讀取 Golf24 已預約時段，只顯示場地可用時段。
+- [ ] 學員送出預約時，若 Golf24 場地已被占用，系統會拒絕並要求重選。
 - [ ] 店家能在 `/admin` 看到報名、設定確切時間並標記場地已確認。
 - [ ] 教練、老闆、管理者能完成 LINE userId 綁定。
 - [ ] 新預約能依 A 方案個別通知指定教練、老闆、管理者。
