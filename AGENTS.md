@@ -21,6 +21,9 @@
 ## 已確認產品決策
 
 - QR Code 不直接導到一般網頁表單，也不只開 LINE 聊天室；正式方案是導到 **LINE LIFF 預約頁**。
+- LIFF App 已建立：`2010758780-cTkP4gpX`，LIFF URL 為 `https://liff.line.me/2010758780-cTkP4gpX`。
+- Vercel production domain 已建立：`https://golf24-report.vercel.app`。LIFF Endpoint URL 已改指向此網域。
+- LINE Messaging API Channel ID：`2010758543`；LINE Login Channel ID：`2010758780`。Channel secret 與 access token 不可寫入 repo。
 - 學員使用 LINE Login / LIFF 身分進入系統，系統保存 `line_user_id` 作為後續通知與會員識別基礎。
 - 通知採 **A 方案：個人 LINE push**，不採群組通知。預約成立後分別通知指定教練、老闆、管理者。
 - 若學員未指定教練，先通知老闆與管理者；店家後台分配教練後，再通知該教練。

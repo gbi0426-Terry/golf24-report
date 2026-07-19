@@ -29,6 +29,13 @@ QR Code 正式入口應使用 LIFF URL：
 https://liff.line.me/{LIFF_ID}?source=wall_qr&campaign={campaign}
 ```
 
+目前已建立的測試/開發入口：
+
+```
+LIFF URL: https://liff.line.me/2010758780-cTkP4gpX
+Endpoint URL: https://golf24-report.vercel.app/
+```
+
 現有 GitHub Pages `index.html` 只作為 Phase 0 展示頁與設計參考；正式預約系統要部署到可執行後端的環境（建議 Vercel）。
 
 | 角色 | 能做什麼 |
