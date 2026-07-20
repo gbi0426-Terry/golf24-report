@@ -444,7 +444,6 @@
         <div>
             <h4>聯絡我們</h4>
             <a href="#" data-line>LINE 官方帳號</a>
-            <a data-phone href="#">電話：09xx-xxx-xxx</a>
             <p>營業時間：每日 09:00–22:00</p>
         </div>
         <div>
@@ -454,7 +453,7 @@
             <a href="#faq">常見問題</a>
         </div>
     </div>
-    <div class="foot-bottom">© 2025 Golf24 高爾夫學院 · 本頁為體驗課預約頁</div>
+    <div class="foot-bottom">© 2026 Golf24 高爾夫學院 · 本頁為體驗課預約頁</div>
 </footer>
 
 <div class="sticky-cta">
@@ -467,7 +466,6 @@ const CONFIG = {
     OWNER_EMAIL: "gbi0426@gmail.com",
     LINE_ADD_URL: "https://line.me/R/ti/p/@455aryoe",
     DEPOSIT_URL: "#",
-    PHONE: "09xx-xxx-xxx",
     LIFF_ID: "2010758780-cTkP4gpX",
     SUPABASE_URL: "https://kmzuvxnemqbwqxyepfqp.supabase.co",
     SUPABASE_PUBLISHABLE_KEY: "sb_publishable_KqUaBQHQBMGW7T64qla-Dw_aG7EqcEE"
@@ -487,11 +485,6 @@ document.querySelectorAll('[data-line]').forEach(a => {
     a.href = CONFIG.LINE_ADD_URL;
     a.target = '_blank';
 });
-document.querySelectorAll('[data-phone]').forEach(a => {
-    a.href = 'tel:' + CONFIG.PHONE.replace(/[^0-9+]/g,'');
-    a.textContent = '電話：' + CONFIG.PHONE;
-});
-
 document.querySelectorAll('[data-course]').forEach(btn => {
     btn.addEventListener('click', () => {
         const course = btn.getAttribute('data-course');
