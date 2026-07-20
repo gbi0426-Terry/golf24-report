@@ -43,6 +43,8 @@ Endpoint URL: https://golf24-report.vercel.app/
 - 預約畫面已改成「選課程 → 指定教練（可選）→ 選日期 / 上午下午晚上 → 填姓名手機」。
 - 送出後呼叫 Supabase RPC `golf24_submit_booking`，建立 `golf24_members`、`golf24_bookings`、`golf24_venue_bookings`。
 - Vercel API `/api/submit-booking` 已負責送出預約與 LINE Messaging API 通知；LINE 通知需在 Vercel 設定 `LINE_CHANNEL_ACCESS_TOKEN` 與通知收件人。
+- `/admin.html` 可管理 `golf24_admins` 與 `golf24_coaches` 通知名單；需在 Vercel 設定 `ADMIN_PIN`。
+- `/line-id.html` 可讓管理者 / 教練用 LINE 開啟後取得自己的 `line_user_id`。
 - `supabase/submit-booking-rpc.sql` 需在 Supabase SQL Editor 執行；前端才會正式寫入資料庫。
 
 現有 GitHub Pages `index.html` 只作為 Phase 0 展示頁與設計參考；正式預約系統要部署到可執行後端的環境（建議 Vercel）。

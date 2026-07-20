@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Golf24 通知後台</title>
+<style>
+    :root {
+        --green-950:#071b14; --green-800:#103727; --green-700:#18543c;
+        --green-100:#eaf5ef; --gold:#c7a35b; --ink:#15221c; --muted:#64736b;
+        --line:#dce6df; --bg:#f6f8f5; --danger:#c0392b;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",Arial,sans-serif; color:var(--ink); background:var(--bg); line-height:1.55; }
+    a { color:var(--green-700); font-weight:700; text-decoration:none; }
+    header { position:sticky; top:0; z-index:2; background:rgba(246,248,245,.92); border-bottom:1px solid var(--line); backdrop-filter:blur(14px); }
+    .bar { max-width:1120px; margin:0 auto; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:900; font-size:20px; }
+    .mark { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--green-800),var(--gold)); }
+    main { max-width:1120px; margin:0 auto; padding:28px 20px 60px; }
+    h1 { margin:0 0 8px; font-size:34px; letter-spacing:-.8px; }
+    h2 { margin:0 0 16px; font-size:22px; }
+    p { color:var(--muted); margin:0; }
+    .grid { display:grid; grid-template-columns:360px 1fr; gap:18px; margin-top:24px; align-items:start; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:0 14px 48px rgba(7,27,20,.08); padding:22px; }
+    .field { display:flex; flex-direction:column; gap:7px; margin-bottom:14px; }
+    label { font-weight:800; font-size:14px; }
+    input, select { font:inherit; width:100%; border:1px solid var(--line); border-radius:12px; padding:12px; background:#fff; color:var(--ink); }
+    input:focus, select:focus { outline:none; border-color:var(--green-700); box-shadow:0 0 0 3px rgba(24,84,60,.12); }
+    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .check { display:flex; flex-direction:row; align-items:center; gap:8px; }
+    .check input { width:auto; }
+    .btn { border:0; border-radius:999px; padding:12px 18px; background:var(--green-800); color:#fff; font-weight:900; cursor:pointer; font-size:15px; }
+    .btn.gold { background:var(--gold); color:var(--green-950); }
+    .btn.ghost { background:#fff; color:var(--green-800); border:1px solid var(--line); }
+    .btn.danger { background:#fff; color:var(--danger); border:1px solid #f1cbc4; }
+    .btn:disabled { opacity:.55; cursor:not-allowed; }
+    .tabs { display:flex; gap:8px; margin-bottom:16px; }
+    .tab { border:1px solid var(--line); background:#fff; color:var(--muted); }
+    .tab.active { background:var(--green-800); color:#fff; border-color:var(--green-800); }
+    .notice { padding:14px 16px; border-radius:14px; background:var(--green-100); color:var(--green-800); margin-top:16px; font-weight:700; display:none; }
+    .notice.show { display:block; }
+    .notice.err { background:#fff3f1; color:var(--danger); }
+    table { width:100%; border-collapse:collapse; overflow:hidden; }
+    th, td { text-align:left; border-bottom:1px solid var(--line); padding:13px 10px; vertical-align:top; font-size:14px; }
+    th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
+    .pill { display:inline-flex; border-radius:999px; padding:4px 8px; font-size:12px; font-weight:800; background:var(--green-100); color:var(--green-800); }
+    .pill.off { background:#f2f2f2; color:#777; }
+    .muted { color:var(--muted); }
+    .mono { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; word-break:break-all; }
+    .empty { padding:28px; text-align:center; color:var(--muted); border:1px dashed var(--line); border-radius:16px; }
+    @media (max-width:860px) {
+        .grid { grid-template-columns:1fr; }
+        table, thead, tbody, tr, th, td { display:block; }
+        thead { display:none; }
+        tr { border:1px solid var(--line); border-radius:16px; padding:10px; margin-bottom:10px; }
+        td { border:0; padding:7px 4px; }
+    }
+</style>
+</head>
+<body>
+<header>
+    <div class="bar">
+        <div class="brand"><span class="mark"></span>Golf24 通知後台</div>
+        <a href="/line-id.html" target="_blank">取得 LINE userId</a>
+    </div>
+</header>
+
+<main>
+    <h1>通知名單設定</h1>
+    <p>新增管理者、老闆與教練。新預約會通知啟用中的管理者；若客人指定教練，也會通知該教練。</p>
+
+    <div class="grid">
+        <section class="card">
+            <h2>新增 / 編輯</h2>
+            <form id="personForm">
+                <input type="hidden" name="id" />
+                <div class="field">
+                    <label>管理密碼</label>
+                    <input name="pin" type="password" autocomplete="current-password" placeholder="輸入 ADMIN_PIN" required />
+                </div>
+                <div class="field">
+                    <label>類型</label>
+                    <select name="type">
+                        <option value="admin">管理者 / 老闆</option>
+                        <option value="coach">教練</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>姓名 / 顯示名稱</label>
+                    <input name="name" placeholder="例如：Terry、老闆、王教練" required />
+                </div>
+                <div class="field" id="roleField">
+                    <label>角色</label>
+                    <select name="role">
+                        <option value="owner">老闆</option>
+                        <option value="manager">管理者</option>
+                        <option value="operator">營運人員</option>
+                    </select>
+                </div>
+                <div class="field" id="specialtyField" style="display:none">
+                    <label>教練專長</label>
+                    <input name="specialty" placeholder="例如：入門 / 揮桿檢測" />
+                </div>
+                <div class="field">
+                    <label>LINE userId</label>
+                    <input name="line_user_id" placeholder="U 開頭的一長串 LINE userId" required />
+                </div>
+                <div class="row">
+                    <label class="check"><input type="checkbox" name="notify_enabled" checked /> 接收通知</label>
+                    <label class="check"><input type="checkbox" name="active" checked /> 啟用</label>
+                </div>
+                <div class="row" style="margin-top:18px">
+                    <button class="btn" type="submit">儲存</button>
+                    <button class="btn ghost" type="button" id="resetBtn">清空</button>
+                    <button class="btn gold" type="button" id="loadBtn">重新整理</button>
+                </div>
+                <div class="notice" id="message"></div>
+            </form>
+        </section>
+
+        <section class="card">
+            <div class="tabs">
+                <button class="btn tab active" type="button" data-tab="admins">管理者 / 老闆</button>
+                <button class="btn tab" type="button" data-tab="coaches">教練</button>
+            </div>
+            <div id="tableWrap" class="empty">請先輸入管理密碼後按重新整理。</div>
+        </section>
+    </div>
+</main>
+
+<script>
+const form = document.getElementById('personForm');
+const tableWrap = document.getElementById('tableWrap');
+const message = document.getElementById('message');
+const roleField = document.getElementById('roleField');
+const specialtyField = document.getElementById('specialtyField');
+const resetBtn = document.getElementById('resetBtn');
+const loadBtn = document.getElementById('loadBtn');
+let currentTab = 'admins';
+let state = { admins: [], coaches: [] };
+
+function showMessage(text, isError = false) {
+    message.textContent = text;
+    message.className = `notice show${isError ? ' err' : ''}`;
+}
+
+function getPin() {
+    return form.elements.pin.value.trim() || localStorage.getItem('golf24_admin_pin') || '';
+}
+
+function savePin() {
+    const pin = form.elements.pin.value.trim();
+    if (pin) localStorage.setItem('golf24_admin_pin', pin);
+}
+
+async function requestAdmin(path, options = {}) {
+    const response = await fetch(path, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            'x-admin-pin': getPin(),
+            ...(options.headers || {})
+        }
+    });
+    const result = await response.json().catch(() => null);
+    if (!response.ok || !result || !result.ok) {
+        throw new Error((result && result.error) || '操作失敗');
+    }
+    return result;
+}
+
+function setTypeFields() {
+    const type = form.elements.type.value;
+    roleField.style.display = type === 'admin' ? 'flex' : 'none';
+    specialtyField.style.display = type === 'coach' ? 'flex' : 'none';
+}
+
+function resetForm(keepPin = true) {
+    const pin = getPin();
+    form.reset();
+    form.elements.id.value = '';
+    if (keepPin) form.elements.pin.value = pin;
+    form.elements.notify_enabled.checked = true;
+    form.elements.active.checked = true;
+    setTypeFields();
+}
+
+function typeLabel(row, type) {
+    if (type === 'admins') return row.role || 'operator';
+    return row.specialty || '-';
+}
+
+function renderTable() {
+    const rows = currentTab === 'admins' ? state.admins : state.coaches;
+    const type = currentTab === 'admins' ? 'admin' : 'coach';
+    if (!rows.length) {
+        tableWrap.innerHTML = '<div class="empty">目前沒有資料。</div>';
+        return;
+    }
+    tableWrap.innerHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>姓名</th>
+                    <th>角色 / 專長</th>
+                    <th>LINE userId</th>
+                    <th>通知</th>
+                    <th>狀態</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rows.map((row) => `
+                    <tr>
+                        <td><strong>${escapeHtml(row.name || '')}</strong></td>
+                        <td>${escapeHtml(typeLabel(row, currentTab))}</td>
+                        <td class="mono">${escapeHtml(row.line_user_id || '-')}</td>
+                        <td><span class="pill ${row.notify_enabled ? '' : 'off'}">${row.notify_enabled ? '通知' : '不通知'}</span></td>
+                        <td><span class="pill ${row.status === 'active' ? '' : 'off'}">${row.status === 'active' ? '啟用' : '停用'}</span></td>
+                        <td class="row">
+                            <button class="btn ghost" type="button" data-edit="${row.id}" data-type="${type}">編輯</button>
+                            <button class="btn danger" type="button" data-disable="${row.id}" data-type="${type}">停用</button>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+async function loadPeople() {
+    savePin();
+    const result = await requestAdmin('/api/admin-notification-users');
+    state = result.data;
+    renderTable();
+    showMessage('已更新通知名單');
+}
+
+function editPerson(type, id) {
+    const rows = type === 'admin' ? state.admins : state.coaches;
+    const person = rows.find((row) => row.id === id);
+    if (!person) return;
+    form.elements.id.value = person.id;
+    form.elements.type.value = type;
+    form.elements.name.value = person.name || '';
+    form.elements.line_user_id.value = person.line_user_id || '';
+    form.elements.notify_enabled.checked = Boolean(person.notify_enabled);
+    form.elements.active.checked = person.status === 'active';
+    if (type === 'admin') form.elements.role.value = person.role || 'operator';
+    if (type === 'coach') form.elements.specialty.value = person.specialty || '';
+    setTypeFields();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function disablePerson(type, id) {
+    if (!confirm('確定要停用這位通知對象？')) return;
+    await requestAdmin('/api/admin-notification-users', {
+        method: 'DELETE',
+        body: JSON.stringify({ type, id })
+    });
+    await loadPeople();
+}
+
+form.elements.pin.value = localStorage.getItem('golf24_admin_pin') || '';
+setTypeFields();
+
+form.elements.type.addEventListener('change', setTypeFields);
+resetBtn.addEventListener('click', () => resetForm(true));
+loadBtn.addEventListener('click', async () => {
+    try {
+        await loadPeople();
+    } catch (error) {
+        showMessage(error.message, true);
+    }
+});
+
+document.querySelectorAll('[data-tab]').forEach((button) => {
+    button.addEventListener('click', () => {
+        currentTab = button.dataset.tab;
+        document.querySelectorAll('[data-tab]').forEach((tab) => tab.classList.toggle('active', tab === button));
+        renderTable();
+    });
+});
+
+tableWrap.addEventListener('click', async (event) => {
+    const editId = event.target.dataset.edit;
+    const disableId = event.target.dataset.disable;
+    const type = event.target.dataset.type;
+    try {
+        if (editId) editPerson(type, editId);
+        if (disableId) await disablePerson(type, disableId);
+    } catch (error) {
+        showMessage(error.message, true);
+    }
+});
+
+form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    savePin();
+    const type = form.elements.type.value;
+    const payload = {
+        id: form.elements.id.value.trim(),
+        type,
+        name: form.elements.name.value.trim(),
+        line_user_id: form.elements.line_user_id.value.trim(),
+        notify_enabled: form.elements.notify_enabled.checked,
+        status: form.elements.active.checked ? 'active' : 'inactive',
+        role: form.elements.role.value,
+        specialty: form.elements.specialty.value.trim()
+    };
+
+    try {
+        await requestAdmin('/api/admin-notification-users', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+        resetForm(true);
+        await loadPeople();
+        showMessage('已儲存');
+    } catch (error) {
+        showMessage(error.message, true);
+    }
+});
+</script>
+</body>
+</html>

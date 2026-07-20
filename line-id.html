@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>取得 LINE userId｜Golf24</title>
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+    :root { --green:#103727; --line:#dce6df; --muted:#64736b; --bg:#f6f8f5; --gold:#c7a35b; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:var(--bg); color:#15221c; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",Arial,sans-serif; }
+    .card { width:min(560px, 100%); background:#fff; border:1px solid var(--line); border-radius:24px; padding:28px; box-shadow:0 18px 60px rgba(7,27,20,.1); }
+    h1 { margin:0 0 10px; font-size:30px; }
+    p { color:var(--muted); line-height:1.7; }
+    .profile { display:flex; align-items:center; gap:14px; margin:20px 0; }
+    img { width:54px; height:54px; border-radius:50%; background:#eaf5ef; object-fit:cover; display:none; }
+    .name { font-weight:900; }
+    .box { border:1px solid var(--line); border-radius:16px; padding:14px; word-break:break-all; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:#fafcf9; }
+    .btn { width:100%; border:0; border-radius:999px; min-height:52px; background:var(--green); color:#fff; font-weight:900; font-size:16px; margin-top:16px; }
+    .btn.gold { background:var(--gold); color:#071b14; }
+    .msg { margin-top:14px; font-weight:800; color:var(--green); }
+</style>
+</head>
+<body>
+<main class="card">
+    <h1>取得 LINE userId</h1>
+    <p>請用 LINE App 開啟本頁。登入後，把下面 U 開頭的 userId 傳給管理者，就可以加入預約通知名單。</p>
+    <div class="profile">
+        <img id="avatar" alt="" />
+        <div>
+            <div class="name" id="name">正在讀取 LINE 身分...</div>
+            <p id="hint">若尚未登入，請按下方按鈕。</p>
+        </div>
+    </div>
+    <div class="box" id="userId">尚未取得</div>
+    <button class="btn" id="loginBtn" type="button">LINE 登入</button>
+    <button class="btn gold" id="copyBtn" type="button">複製 userId</button>
+    <div class="msg" id="msg"></div>
+</main>
+
+<script>
+const LIFF_ID = '2010758780-cTkP4gpX';
+const nameEl = document.getElementById('name');
+const hintEl = document.getElementById('hint');
+const avatar = document.getElementById('avatar');
+const userIdEl = document.getElementById('userId');
+const loginBtn = document.getElementById('loginBtn');
+const copyBtn = document.getElementById('copyBtn');
+const msg = document.getElementById('msg');
+
+async function init() {
+    try {
+        await liff.init({ liffId: LIFF_ID });
+        if (!liff.isLoggedIn()) {
+            nameEl.textContent = '尚未 LINE 登入';
+            hintEl.textContent = '請先登入，系統才會取得你的 LINE userId。';
+            loginBtn.style.display = 'block';
+            return;
+        }
+
+        const profile = await liff.getProfile();
+        nameEl.textContent = profile.displayName || 'LINE 使用者';
+        hintEl.textContent = '請把下方 userId 傳給管理者。';
+        userIdEl.textContent = profile.userId || '尚未取得';
+        if (profile.pictureUrl) {
+            avatar.src = profile.pictureUrl;
+            avatar.style.display = 'block';
+        }
+        loginBtn.style.display = 'none';
+    } catch (error) {
+        nameEl.textContent = 'LINE 讀取失敗';
+        hintEl.textContent = '請確認是用 LINE App 開啟本頁。';
+        msg.textContent = error.message || '無法讀取 LINE 身分';
+    }
+}
+
+loginBtn.addEventListener('click', () => liff.login({ redirectUri: window.location.href }));
+copyBtn.addEventListener('click', async () => {
+    const text = userIdEl.textContent.trim();
+    if (!text || !text.startsWith('U')) {
+        msg.textContent = '尚未取得可複製的 userId';
+        return;
+    }
+    await navigator.clipboard.writeText(text);
+    msg.textContent = '已複製';
+});
+
+init();
+</script>
+</body>
+</html>
