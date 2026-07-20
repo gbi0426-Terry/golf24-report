@@ -626,6 +626,21 @@ function getMissingFields(data) {
     return missing;
 }
 
+async function submitBooking(data) {
+    const response = await fetch('/api/submit-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+
+    const result = await response.json().catch(() => null);
+    if (!response.ok || !result || !result.ok) {
+        throw new Error((result && result.error) || '系統暫時無法建立預約');
+    }
+
+    return result;
+}
+
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     errBox.classList.remove('show');
@@ -635,11 +650,6 @@ form.addEventListener('submit', async (e) => {
     if (missingFields.length > 0) {
         showError(`請補上：${missingFields.join('、')}。`);
         focusFirstMissingField(data);
-        return;
-    }
-
-    if (!supabaseClient) {
-        showError('預約系統暫時無法連線，請稍後再試或加 LINE 讓我們協助。');
         return;
     }
 
@@ -656,23 +666,14 @@ form.addEventListener('submit', async (e) => {
     btn.disabled = true;
     btn.textContent = '送出預約中...';
 
-    const { data: bookingResult, error } = await supabaseClient.rpc('golf24_submit_booking', {
-        p_line_user_id: data.line_user_id || null,
-        p_line_display_name: data.line_display_name || null,
-        p_line_picture_url: data.line_picture_url || null,
-        p_name: data.name,
-        p_phone: data.phone,
-        p_course_name: data.course,
-        p_coach_name: data.coach || null,
-        p_level: data.level || null,
-        p_preferred_date: data.date,
-        p_preferred_slot: data.time_slot,
-        p_source: data.source || 'LINE LIFF',
-        p_campaign: data.campaign || null,
-        p_note: data.note || null
-    });
-
-    if (error) {
+    let bookingResult = null;
+    try {
+        const result = await submitBooking(data);
+        bookingResult = result.booking;
+        if (result.notification && !result.notification.sent) {
+            console.info('booking saved without LINE notification', result.notification.reason || result.notification);
+        }
+    } catch (error) {
         console.error('booking submit failed', error);
         btn.disabled = false;
         btn.textContent = '送出預約資料 →';
