@@ -3,334 +3,87 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Golf24 通知後台</title>
+<title>Golf24 管理後台</title>
 <style>
-    :root {
-        --green-950:#071b14; --green-800:#103727; --green-700:#18543c;
-        --green-100:#eaf5ef; --gold:#c7a35b; --ink:#15221c; --muted:#64736b;
-        --line:#dce6df; --bg:#f6f8f5; --danger:#c0392b;
-    }
-    * { box-sizing:border-box; }
-    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",Arial,sans-serif; color:var(--ink); background:var(--bg); line-height:1.55; }
-    a { color:var(--green-700); font-weight:700; text-decoration:none; }
-    header { position:sticky; top:0; z-index:2; background:rgba(246,248,245,.92); border-bottom:1px solid var(--line); backdrop-filter:blur(14px); }
-    .bar { max-width:1120px; margin:0 auto; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
-    .brand { display:flex; align-items:center; gap:10px; font-weight:900; font-size:20px; }
-    .mark { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--green-800),var(--gold)); }
-    main { max-width:1120px; margin:0 auto; padding:28px 20px 60px; }
-    h1 { margin:0 0 8px; font-size:34px; letter-spacing:-.8px; }
-    h2 { margin:0 0 16px; font-size:22px; }
-    p { color:var(--muted); margin:0; }
-    .grid { display:grid; grid-template-columns:360px 1fr; gap:18px; margin-top:24px; align-items:start; }
-    .card { background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:0 14px 48px rgba(7,27,20,.08); padding:22px; }
-    .field { display:flex; flex-direction:column; gap:7px; margin-bottom:14px; }
-    label { font-weight:800; font-size:14px; }
-    input, select { font:inherit; width:100%; border:1px solid var(--line); border-radius:12px; padding:12px; background:#fff; color:var(--ink); }
-    input:focus, select:focus { outline:none; border-color:var(--green-700); box-shadow:0 0 0 3px rgba(24,84,60,.12); }
-    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    .check { display:flex; flex-direction:row; align-items:center; gap:8px; }
-    .check input { width:auto; }
-    .btn { border:0; border-radius:999px; padding:12px 18px; background:var(--green-800); color:#fff; font-weight:900; cursor:pointer; font-size:15px; }
-    .btn.gold { background:var(--gold); color:var(--green-950); }
-    .btn.ghost { background:#fff; color:var(--green-800); border:1px solid var(--line); }
-    .btn.danger { background:#fff; color:var(--danger); border:1px solid #f1cbc4; }
-    .btn:disabled { opacity:.55; cursor:not-allowed; }
-    .tabs { display:flex; gap:8px; margin-bottom:16px; }
-    .tab { border:1px solid var(--line); background:#fff; color:var(--muted); }
-    .tab.active { background:var(--green-800); color:#fff; border-color:var(--green-800); }
-    .notice { padding:14px 16px; border-radius:14px; background:var(--green-100); color:var(--green-800); margin-top:16px; font-weight:700; display:none; }
-    .notice.show { display:block; }
-    .notice.err { background:#fff3f1; color:var(--danger); }
-    table { width:100%; border-collapse:collapse; overflow:hidden; }
-    th, td { text-align:left; border-bottom:1px solid var(--line); padding:13px 10px; vertical-align:top; font-size:14px; }
-    th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
-    .pill { display:inline-flex; border-radius:999px; padding:4px 8px; font-size:12px; font-weight:800; background:var(--green-100); color:var(--green-800); }
-    .pill.off { background:#f2f2f2; color:#777; }
-    .muted { color:var(--muted); }
-    .mono { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; word-break:break-all; }
-    .empty { padding:28px; text-align:center; color:var(--muted); border:1px dashed var(--line); border-radius:16px; }
-    @media (max-width:860px) {
-        .grid { grid-template-columns:1fr; }
-        table, thead, tbody, tr, th, td { display:block; }
-        thead { display:none; }
-        tr { border:1px solid var(--line); border-radius:16px; padding:10px; margin-bottom:10px; }
-        td { border:0; padding:7px 4px; }
-    }
+    :root { --green-950:#071b14; --green-800:#103727; --green-700:#18543c; --green-100:#eaf5ef; --gold:#c7a35b; --ink:#15221c; --muted:#64736b; --line:#dce6df; --bg:#f6f8f5; --danger:#c0392b; }
+    * { box-sizing:border-box; } body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",Arial,sans-serif; color:var(--ink); background:var(--bg); line-height:1.55; }
+    button,input,select,textarea { font:inherit; } button { cursor:pointer; }
+    .app { min-height:100vh; display:grid; grid-template-columns:238px minmax(0,1fr); }
+    aside { position:sticky; top:0; height:100vh; background:var(--green-950); color:#eff7f1; padding:26px 16px; display:flex; flex-direction:column; }
+    .brand { display:flex; align-items:center; gap:9px; padding:0 8px 25px; font-weight:900; font-size:20px; }.mark { width:33px; height:33px; border-radius:50%; background:linear-gradient(135deg,var(--green-800),var(--gold)); }
+    .nav-label { font-size:11px; letter-spacing:.12em; color:#a8b8af; padding:14px 10px 7px; }.nav { width:100%; border:0; border-radius:9px; color:#c7d3cb; background:transparent; padding:12px 11px; text-align:left; font-weight:800; font-size:15px; }.nav.active,.nav:hover { background:#174431; color:#fff; }.side-bottom { margin-top:auto; padding:20px 9px 0; font-size:13px; color:#b9c8bf; border-top:1px solid rgba(255,255,255,.12); }.side-bottom a { color:#e1c27f; font-weight:800; text-decoration:none; }
+    main { min-width:0; }.topbar { height:72px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; padding:0 32px; background:rgba(255,255,255,.76); }.topbar h1 { font-size:19px; margin:0; }.topbar a { color:var(--green-700); font-weight:800; text-decoration:none; }
+    .content { max-width:1320px; margin:0 auto; padding:30px 32px 60px; }.view { display:none; }.view.active { display:block; }.intro h2 { font-size:30px; margin:0 0 6px; }.intro p { margin:0; color:var(--muted); }
+    .card { background:#fff; border:1px solid var(--line); border-radius:14px; box-shadow:0 14px 42px rgba(7,27,20,.06); padding:22px; }.toolbar { display:flex; justify-content:space-between; align-items:center; gap:16px; margin:24px 0 14px; }.toolbar .tools { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }.summary { display:flex; gap:10px; flex-wrap:wrap; }.metric { background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px 12px; font-size:13px; color:var(--muted); }.metric strong { color:var(--green-800); font-size:16px; margin-right:4px; }
+    .grid { display:grid; grid-template-columns:360px minmax(0,1fr); gap:18px; margin-top:24px; align-items:start; }.field { display:flex; flex-direction:column; gap:7px; margin-bottom:14px; } label { font-weight:800; font-size:14px; } input,select,textarea { width:100%; border:1px solid var(--line); border-radius:10px; padding:11px 12px; color:var(--ink); background:#fff; } textarea { min-height:88px; resize:vertical; } input:focus,select:focus,textarea:focus { outline:none; border-color:var(--green-700); box-shadow:0 0 0 3px rgba(24,84,60,.12); }.row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }.check { display:flex; flex-direction:row; align-items:center; gap:8px; }.check input { width:auto; }
+    .btn { border:0; border-radius:9px; padding:10px 15px; background:var(--green-800); color:#fff; font-weight:900; font-size:14px; }.btn.gold { background:var(--gold); color:var(--green-950); }.btn.ghost { background:#fff; color:var(--green-800); border:1px solid var(--line); }.btn.danger { background:#fff; color:var(--danger); border:1px solid #f1cbc4; }.btn:disabled { opacity:.55; cursor:not-allowed; }
+    .tabs { display:flex; gap:8px; margin-bottom:16px; }.tab { border:1px solid var(--line); background:#fff; color:var(--muted); }.tab.active { background:var(--green-800); color:#fff; border-color:var(--green-800); }.notice { padding:12px 14px; border-radius:10px; background:var(--green-100); color:var(--green-800); margin-top:16px; font-weight:700; display:none; }.notice.show { display:block; }.notice.err { background:#fff3f1; color:var(--danger); }
+    .table-shell { overflow-x:auto; } table { width:100%; border-collapse:collapse; min-width:900px; } th,td { text-align:left; border-bottom:1px solid var(--line); padding:13px 10px; vertical-align:top; font-size:14px; } th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.06em; }.pill { display:inline-flex; border-radius:999px; padding:3px 8px; font-size:12px; font-weight:800; background:var(--green-100); color:var(--green-800); }.pill.pending { background:#fff4dc; color:#996b12; }.pill.cancelled,.pill.no_show { background:#fff0ef; color:#a63328; }.pill.paid,.pill.completed { background:#e7f4ed; color:#17683d; }.pill.off { background:#f2f2f2; color:#777; }.muted { color:var(--muted); }.mono { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; }.empty { padding:28px; text-align:center; color:var(--muted); border:1px dashed var(--line); border-radius:12px; }.booking-actions { min-width:230px; }.booking-actions textarea { min-height:54px; margin:7px 0; font-size:13px; }.booking-actions select { padding:7px 8px; font-size:13px; }
+    @media(max-width:860px) { .app { grid-template-columns:1fr; } aside { position:sticky; z-index:3; top:0; height:auto; padding:12px 14px; flex-direction:row; align-items:center; gap:10px; }.brand { padding:0; font-size:18px; }.nav-label,.side-bottom { display:none; }.navs { display:flex; margin-left:auto; gap:3px; }.nav { width:auto; padding:8px 9px; font-size:13px; }.topbar { padding:0 18px; height:58px; }.topbar h1 { font-size:16px; }.content { padding:22px 16px 48px; }.intro h2 { font-size:25px; }.grid { grid-template-columns:1fr; }.toolbar { align-items:flex-start; flex-direction:column; }.table-shell { margin:0 -4px; }.card { padding:16px; } }
 </style>
 </head>
 <body>
-<header>
-    <div class="bar">
-        <div class="brand"><span class="mark"></span>Golf24 通知後台</div>
-        <a href="/line-id.html" target="_blank">取得 LINE userId</a>
-    </div>
-</header>
-
-<main>
-    <h1>通知名單設定</h1>
-    <p>新增管理者、老闆與教練。新預約會通知啟用中的管理者；若客人指定教練，也會通知該教練。</p>
-
-    <div class="grid">
-        <section class="card">
-            <h2>新增 / 編輯</h2>
-            <form id="personForm">
-                <input type="hidden" name="id" />
-                <div class="field">
-                    <label>管理密碼</label>
-                    <input name="pin" type="password" autocomplete="current-password" placeholder="輸入 ADMIN_PIN" required />
+<div class="app">
+    <aside>
+        <div class="brand"><span class="mark"></span>Golf24 管理後台</div>
+        <nav class="navs"><div class="nav-label">管理功能</div><button class="nav active" data-view="bookings">預約管理</button><button class="nav" data-view="notifications">通知設定</button></nav>
+        <div class="side-bottom">需要取得同仁的 LINE userId？<br><a href="/line-id.html" target="_blank">開啟 LINE userId 工具</a></div>
+    </aside>
+    <main>
+        <header class="topbar"><h1 id="pageTitle">預約管理</h1><a href="/" target="_blank">查看報名頁</a></header>
+        <div class="content">
+            <section id="bookings" class="view active">
+                <div class="intro"><h2>預約管理</h2><p>查看所有報名資料，確認後可直接更新預約狀態與內部備註。</p></div>
+                <div class="toolbar"><div class="tools"><input id="bookingPin" type="password" placeholder="輸入管理密碼 ADMIN_PIN" style="width:260px" /><button class="btn" id="loadBookings">讀取預約資料</button></div><div id="bookingSummary" class="summary"></div></div>
+                <div class="card"><div id="bookingWrap" class="empty">輸入管理密碼後，按「讀取預約資料」。</div></div>
+                <div id="bookingMessage" class="notice"></div>
+            </section>
+            <section id="notifications" class="view">
+                <div class="intro"><h2>通知設定</h2><p>設定老闆、管理者與教練。新預約會通知所有啟用的管理者；指定教練的預約也會通知該教練。</p></div>
+                <div class="grid">
+                    <section class="card"><h3 style="margin-top:0">新增 / 編輯</h3><form id="personForm"><input type="hidden" name="id" />
+                        <div class="field"><label>管理密碼</label><input name="pin" type="password" autocomplete="current-password" placeholder="輸入 ADMIN_PIN" required /></div>
+                        <div class="field"><label>類型</label><select name="type"><option value="admin">管理者 / 老闆</option><option value="coach">教練</option></select></div>
+                        <div class="field"><label>姓名 / 顯示名稱</label><input name="name" placeholder="例如：Terry、老闆、王教練" required /></div>
+                        <div class="field" id="roleField"><label>角色</label><select name="role"><option value="owner">老闆</option><option value="manager">管理者</option><option value="operator">營運人員</option></select></div>
+                        <div class="field" id="specialtyField" style="display:none"><label>教練專長</label><input name="specialty" placeholder="例如：入門 / 揮桿檢測" /></div>
+                        <div class="field"><label>LINE userId</label><input name="line_user_id" placeholder="U 開頭的一長串 LINE userId" required /></div>
+                        <div class="row"><label class="check"><input type="checkbox" name="notify_enabled" checked /> 接收通知</label><label class="check"><input type="checkbox" name="active" checked /> 啟用</label></div>
+                        <div class="row" style="margin-top:18px"><button class="btn" type="submit">儲存</button><button class="btn ghost" type="button" id="resetBtn">清空</button><button class="btn gold" type="button" id="loadPeople">重新整理</button></div><div class="notice" id="peopleMessage"></div>
+                    </form></section>
+                    <section class="card"><div class="tabs"><button class="btn tab active" type="button" data-tab="admins">管理者 / 老闆</button><button class="btn tab" type="button" data-tab="coaches">教練</button></div><div id="peopleWrap" class="empty">請先輸入管理密碼後按重新整理。</div></section>
                 </div>
-                <div class="field">
-                    <label>類型</label>
-                    <select name="type">
-                        <option value="admin">管理者 / 老闆</option>
-                        <option value="coach">教練</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>姓名 / 顯示名稱</label>
-                    <input name="name" placeholder="例如：Terry、老闆、王教練" required />
-                </div>
-                <div class="field" id="roleField">
-                    <label>角色</label>
-                    <select name="role">
-                        <option value="owner">老闆</option>
-                        <option value="manager">管理者</option>
-                        <option value="operator">營運人員</option>
-                    </select>
-                </div>
-                <div class="field" id="specialtyField" style="display:none">
-                    <label>教練專長</label>
-                    <input name="specialty" placeholder="例如：入門 / 揮桿檢測" />
-                </div>
-                <div class="field">
-                    <label>LINE userId</label>
-                    <input name="line_user_id" placeholder="U 開頭的一長串 LINE userId" required />
-                </div>
-                <div class="row">
-                    <label class="check"><input type="checkbox" name="notify_enabled" checked /> 接收通知</label>
-                    <label class="check"><input type="checkbox" name="active" checked /> 啟用</label>
-                </div>
-                <div class="row" style="margin-top:18px">
-                    <button class="btn" type="submit">儲存</button>
-                    <button class="btn ghost" type="button" id="resetBtn">清空</button>
-                    <button class="btn gold" type="button" id="loadBtn">重新整理</button>
-                </div>
-                <div class="notice" id="message"></div>
-            </form>
-        </section>
-
-        <section class="card">
-            <div class="tabs">
-                <button class="btn tab active" type="button" data-tab="admins">管理者 / 老闆</button>
-                <button class="btn tab" type="button" data-tab="coaches">教練</button>
-            </div>
-            <div id="tableWrap" class="empty">請先輸入管理密碼後按重新整理。</div>
-        </section>
-    </div>
-</main>
-
+            </section>
+        </div>
+    </main>
+</div>
 <script>
-const form = document.getElementById('personForm');
-const tableWrap = document.getElementById('tableWrap');
-const message = document.getElementById('message');
-const roleField = document.getElementById('roleField');
-const specialtyField = document.getElementById('specialtyField');
-const resetBtn = document.getElementById('resetBtn');
-const loadBtn = document.getElementById('loadBtn');
-let currentTab = 'admins';
-let state = { admins: [], coaches: [] };
-
-function showMessage(text, isError = false) {
-    message.textContent = text;
-    message.className = `notice show${isError ? ' err' : ''}`;
-}
-
-function getPin() {
-    return form.elements.pin.value.trim() || localStorage.getItem('golf24_admin_pin') || '';
-}
-
-function savePin() {
-    const pin = form.elements.pin.value.trim();
-    if (pin) localStorage.setItem('golf24_admin_pin', pin);
-}
-
-async function requestAdmin(path, options = {}) {
-    const response = await fetch(path, {
-        ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            'x-admin-pin': getPin(),
-            ...(options.headers || {})
-        }
-    });
-    const result = await response.json().catch(() => null);
-    if (!response.ok || !result || !result.ok) {
-        throw new Error((result && result.error) || '操作失敗');
-    }
-    return result;
-}
-
-function setTypeFields() {
-    const type = form.elements.type.value;
-    roleField.style.display = type === 'admin' ? 'flex' : 'none';
-    specialtyField.style.display = type === 'coach' ? 'flex' : 'none';
-}
-
-function resetForm(keepPin = true) {
-    const pin = getPin();
-    form.reset();
-    form.elements.id.value = '';
-    if (keepPin) form.elements.pin.value = pin;
-    form.elements.notify_enabled.checked = true;
-    form.elements.active.checked = true;
-    setTypeFields();
-}
-
-function typeLabel(row, type) {
-    if (type === 'admins') return row.role || 'operator';
-    return row.specialty || '-';
-}
-
-function renderTable() {
-    const rows = currentTab === 'admins' ? state.admins : state.coaches;
-    const type = currentTab === 'admins' ? 'admin' : 'coach';
-    if (!rows.length) {
-        tableWrap.innerHTML = '<div class="empty">目前沒有資料。</div>';
-        return;
-    }
-    tableWrap.innerHTML = `
-        <table>
-            <thead>
-                <tr>
-                    <th>姓名</th>
-                    <th>角色 / 專長</th>
-                    <th>LINE userId</th>
-                    <th>通知</th>
-                    <th>狀態</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                ${rows.map((row) => `
-                    <tr>
-                        <td><strong>${escapeHtml(row.name || '')}</strong></td>
-                        <td>${escapeHtml(typeLabel(row, currentTab))}</td>
-                        <td class="mono">${escapeHtml(row.line_user_id || '-')}</td>
-                        <td><span class="pill ${row.notify_enabled ? '' : 'off'}">${row.notify_enabled ? '通知' : '不通知'}</span></td>
-                        <td><span class="pill ${row.status === 'active' ? '' : 'off'}">${row.status === 'active' ? '啟用' : '停用'}</span></td>
-                        <td class="row">
-                            <button class="btn ghost" type="button" data-edit="${row.id}" data-type="${type}">編輯</button>
-                            <button class="btn danger" type="button" data-disable="${row.id}" data-type="${type}">停用</button>
-                        </td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-    `;
-}
-
-function escapeHtml(value) {
-    return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
-
-async function loadPeople() {
-    savePin();
-    const result = await requestAdmin('/api/admin-notification-users');
-    state = result.data;
-    renderTable();
-    showMessage('已更新通知名單');
-}
-
-function editPerson(type, id) {
-    const rows = type === 'admin' ? state.admins : state.coaches;
-    const person = rows.find((row) => row.id === id);
-    if (!person) return;
-    form.elements.id.value = person.id;
-    form.elements.type.value = type;
-    form.elements.name.value = person.name || '';
-    form.elements.line_user_id.value = person.line_user_id || '';
-    form.elements.notify_enabled.checked = Boolean(person.notify_enabled);
-    form.elements.active.checked = person.status === 'active';
-    if (type === 'admin') form.elements.role.value = person.role || 'operator';
-    if (type === 'coach') form.elements.specialty.value = person.specialty || '';
-    setTypeFields();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-async function disablePerson(type, id) {
-    if (!confirm('確定要停用這位通知對象？')) return;
-    await requestAdmin('/api/admin-notification-users', {
-        method: 'DELETE',
-        body: JSON.stringify({ type, id })
-    });
-    await loadPeople();
-}
-
-form.elements.pin.value = localStorage.getItem('golf24_admin_pin') || '';
-setTypeFields();
-
-form.elements.type.addEventListener('change', setTypeFields);
-resetBtn.addEventListener('click', () => resetForm(true));
-loadBtn.addEventListener('click', async () => {
-    try {
-        await loadPeople();
-    } catch (error) {
-        showMessage(error.message, true);
-    }
-});
-
-document.querySelectorAll('[data-tab]').forEach((button) => {
-    button.addEventListener('click', () => {
-        currentTab = button.dataset.tab;
-        document.querySelectorAll('[data-tab]').forEach((tab) => tab.classList.toggle('active', tab === button));
-        renderTable();
-    });
-});
-
-tableWrap.addEventListener('click', async (event) => {
-    const editId = event.target.dataset.edit;
-    const disableId = event.target.dataset.disable;
-    const type = event.target.dataset.type;
-    try {
-        if (editId) editPerson(type, editId);
-        if (disableId) await disablePerson(type, disableId);
-    } catch (error) {
-        showMessage(error.message, true);
-    }
-});
-
-form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    savePin();
-    const type = form.elements.type.value;
-    const payload = {
-        id: form.elements.id.value.trim(),
-        type,
-        name: form.elements.name.value.trim(),
-        line_user_id: form.elements.line_user_id.value.trim(),
-        notify_enabled: form.elements.notify_enabled.checked,
-        status: form.elements.active.checked ? 'active' : 'inactive',
-        role: form.elements.role.value,
-        specialty: form.elements.specialty.value.trim()
-    };
-
-    try {
-        await requestAdmin('/api/admin-notification-users', {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        });
-        resetForm(true);
-        await loadPeople();
-        showMessage('已儲存');
-    } catch (error) {
-        showMessage(error.message, true);
-    }
-});
+const pageTitle=document.getElementById('pageTitle'); const navs=document.querySelectorAll('[data-view]');
+const personForm=document.getElementById('personForm'), peopleWrap=document.getElementById('peopleWrap'), peopleMessage=document.getElementById('peopleMessage');
+const bookingPin=document.getElementById('bookingPin'), bookingWrap=document.getElementById('bookingWrap'), bookingMessage=document.getElementById('bookingMessage'), bookingSummary=document.getElementById('bookingSummary');
+const roleField=document.getElementById('roleField'), specialtyField=document.getElementById('specialtyField'); let currentTab='admins', people={admins:[],coaches:[]}, bookings=[];
+const titles={bookings:'預約管理',notifications:'通知設定'};
+function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
+function show(el,text,error=false){el.textContent=text;el.className=`notice show${error?' err':''}`}
+function pin(){return personForm.elements.pin.value.trim()||bookingPin.value.trim()||localStorage.getItem('golf24_admin_pin')||''}
+function keepPin(){const v=pin();if(v){localStorage.setItem('golf24_admin_pin',v);personForm.elements.pin.value=v;bookingPin.value=v}}
+async function api(path,options={}){const r=await fetch(path,{...options,headers:{'Content-Type':'application/json','x-admin-pin':pin(),...(options.headers||{})}});const b=await r.json().catch(()=>null);if(!r.ok||!b?.ok)throw new Error(b?.error||'操作失敗');return b}
+navs.forEach(btn=>btn.onclick=()=>{const id=btn.dataset.view;navs.forEach(n=>n.classList.toggle('active',n===btn));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));pageTitle.textContent=titles[id]});
+function formatDate(value){if(!value)return '-';return new Intl.DateTimeFormat('zh-TW',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Taipei'}).format(new Date(value))}
+function statusName(s){return ({pending:'待確認',confirmed:'已確認',paid:'已付款',completed:'已完成',cancelled:'已取消',no_show:'未到'})[s]||s}
+function renderBookings(){if(!bookings.length){bookingWrap.innerHTML='<div class="empty">目前沒有預約資料。</div>';bookingSummary.innerHTML='';return}const counts=bookings.reduce((a,b)=>(a[b.status]=(a[b.status]||0)+1,a),{});bookingSummary.innerHTML=`<span class="metric"><strong>${bookings.length}</strong>全部</span><span class="metric"><strong>${counts.pending||0}</strong>待確認</span><span class="metric"><strong>${counts.confirmed||0}</strong>已確認</span>`;bookingWrap.innerHTML=`<div class="table-shell"><table><thead><tr><th>預約時間</th><th>學員</th><th>課程</th><th>教練</th><th>來源</th><th>建立時間</th><th>狀態 / 內部備註</th></tr></thead><tbody>${bookings.map(b=>{const m=b.golf24_members||{},c=b.golf24_courses||{},coach=b.golf24_coaches||{};return `<tr><td><strong>${esc(b.preferred_date||'-')}</strong><br><span class="muted">${esc(({morning:'上午',afternoon:'下午',evening:'晚上'})[b.preferred_slot]||b.preferred_slot||'')}</span></td><td><strong>${esc(m.name||m.line_display_name||'-')}</strong><br><a href="tel:${esc(m.phone||'')}">${esc(m.phone||'-')}</a><br><span class="muted">${esc(m.level||'')}</span></td><td>${esc(c.name||'-')}<br><span class="muted">${c.price?'NT$'+esc(c.price):''}</span></td><td>${esc(coach.name||'未指定')}</td><td>${esc(b.source||m.source||'-')}</td><td class="muted">${formatDate(b.created_at)}</td><td class="booking-actions"><span class="pill ${esc(b.status)}">${statusName(b.status)}</span><select data-status="${esc(b.id)}">${['pending','confirmed','paid','completed','cancelled','no_show'].map(s=>`<option value="${s}" ${s===b.status?'selected':''}>${statusName(s)}</option>`).join('')}</select><textarea data-note="${esc(b.id)}" placeholder="內部備註，不會顯示給客人">${esc(b.admin_note||'')}</textarea><button class="btn ghost" data-save-booking="${esc(b.id)}">儲存變更</button></td></tr>`}).join('')}</tbody></table></div>`}
+async function loadBookings(){try{keepPin();const r=await api('/api/admin-bookings');bookings=r.data||[];renderBookings();show(bookingMessage,'已載入預約資料')}catch(e){show(bookingMessage,e.message,true)}}
+document.getElementById('loadBookings').onclick=loadBookings;
+bookingWrap.onclick=async e=>{const id=e.target.dataset.saveBooking;if(!id)return;try{const status=bookingWrap.querySelector(`[data-status="${id}"]`).value,note=bookingWrap.querySelector(`[data-note="${id}"]`).value;await api('/api/admin-bookings',{method:'PATCH',body:JSON.stringify({id,status,admin_note:note})});await loadBookings();show(bookingMessage,'預約狀態已更新')}catch(err){show(bookingMessage,err.message,true)}};
+function typeFields(){const isAdmin=personForm.elements.type.value==='admin';roleField.style.display=isAdmin?'flex':'none';specialtyField.style.display=isAdmin?'none':'flex'}
+function resetForm(keep=true){const p=pin();personForm.reset();personForm.elements.id.value='';if(keep)personForm.elements.pin.value=p;personForm.elements.notify_enabled.checked=true;personForm.elements.active.checked=true;typeFields()}
+function renderPeople(){const rows=currentTab==='admins'?people.admins:people.coaches,type=currentTab==='admins'?'admin':'coach';if(!rows.length){peopleWrap.innerHTML='<div class="empty">目前沒有資料。</div>';return}peopleWrap.innerHTML=`<div class="table-shell"><table><thead><tr><th>姓名</th><th>角色 / 專長</th><th>LINE userId</th><th>通知</th><th>狀態</th><th></th></tr></thead><tbody>${rows.map(r=>`<tr><td><strong>${esc(r.name)}</strong></td><td>${esc(type==='admin'?r.role:r.specialty||'-')}</td><td class="mono">${esc(r.line_user_id||'-')}</td><td><span class="pill ${r.notify_enabled?'':'off'}">${r.notify_enabled?'通知':'不通知'}</span></td><td><span class="pill ${r.status==='active'?'':'off'}">${r.status==='active'?'啟用':'停用'}</span></td><td><div class="row"><button class="btn ghost" data-edit="${r.id}" data-type="${type}">編輯</button><button class="btn danger" data-disable="${r.id}" data-type="${type}">停用</button></div></td></tr>`).join('')}</tbody></table></div>`}
+async function loadPeople(){try{keepPin();const r=await api('/api/admin-notification-users');people=r.data;renderPeople();show(peopleMessage,'已更新通知名單')}catch(e){show(peopleMessage,e.message,true)}}
+document.getElementById('loadPeople').onclick=loadPeople;document.getElementById('resetBtn').onclick=()=>resetForm();personForm.elements.type.onchange=typeFields;
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{currentTab=b.dataset.tab;document.querySelectorAll('[data-tab]').forEach(t=>t.classList.toggle('active',t===b));renderPeople()});
+peopleWrap.onclick=async e=>{const type=e.target.dataset.type,id=e.target.dataset.edit||e.target.dataset.disable;if(!id)return;try{const rows=type==='admin'?people.admins:people.coaches,row=rows.find(v=>v.id===id);if(e.target.dataset.edit){personForm.elements.id.value=row.id;personForm.elements.type.value=type;personForm.elements.name.value=row.name||'';personForm.elements.line_user_id.value=row.line_user_id||'';personForm.elements.notify_enabled.checked=!!row.notify_enabled;personForm.elements.active.checked=row.status==='active';if(type==='admin')personForm.elements.role.value=row.role||'operator';else personForm.elements.specialty.value=row.specialty||'';typeFields();window.scrollTo({top:0,behavior:'smooth'})}else if(confirm('確定要停用這位通知對象？')){await api('/api/admin-notification-users',{method:'DELETE',body:JSON.stringify({type,id})});await loadPeople()}}catch(err){show(peopleMessage,err.message,true)}};
+personForm.onsubmit=async e=>{e.preventDefault();try{keepPin();const f=personForm.elements,p={id:f.id.value.trim(),type:f.type.value,name:f.name.value.trim(),line_user_id:f.line_user_id.value.trim(),notify_enabled:f.notify_enabled.checked,status:f.active.checked?'active':'inactive',role:f.role.value,specialty:f.specialty.value.trim()};await api('/api/admin-notification-users',{method:'POST',body:JSON.stringify(p)});resetForm();await loadPeople();show(peopleMessage,'已儲存')}catch(err){show(peopleMessage,err.message,true)}};
+personForm.elements.pin.value=localStorage.getItem('golf24_admin_pin')||'';bookingPin.value=localStorage.getItem('golf24_admin_pin')||'';typeFields();
 </script>
 </body>
 </html>
