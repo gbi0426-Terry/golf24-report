@@ -600,13 +600,24 @@ function showError(message) {
     errBox.scrollIntoView({behavior:'smooth', block:'center'});
 }
 
+function getMissingFields(data) {
+    const missing = [];
+    if (!data.course) missing.push('課程');
+    if (!data.name) missing.push('姓名');
+    if (!data.phone) missing.push('手機');
+    if (!data.date) missing.push('日期');
+    if (!data.time_slot) missing.push('時段');
+    return missing;
+}
+
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     errBox.classList.remove('show');
     const data = Object.fromEntries(new FormData(form).entries());
+    const missingFields = getMissingFields(data);
 
-    if (!data.name || !data.phone || !data.course || !data.date || !data.time_slot) {
-        showError('請填寫必填欄位（課程、姓名、手機、日期、時段）。');
+    if (missingFields.length > 0) {
+        showError(`請補上：${missingFields.join('、')}。`);
         return;
     }
 
@@ -648,7 +659,7 @@ form.addEventListener('submit', async (e) => {
         console.error('booking submit failed', error);
         btn.disabled = false;
         btn.textContent = '送出預約資料 →';
-        showError('預約送出失敗，請稍後再試，或先加 LINE 讓我們協助。');
+        showError(`預約送出失敗：${error.message || '系統暫時無法建立預約'}。請截圖給店家，或先加 LINE 讓我們協助。`);
         return;
     }
 
