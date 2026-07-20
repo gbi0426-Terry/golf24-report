@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Golf24 高爾夫學院｜室內一對一．掃碼預約體驗課</title>
-<meta name="description" content="室內恆溫高爾夫球室 × 專業教練一對一。新手體驗、揮桿檢測單次 NT$1,500；正式課程一期五堂，線上報名、加 LINE 確認、付訂金保留名額。" />
+<meta name="description" content="室內恆溫高爾夫球室 × 專業教練一對一。新手體驗與揮桿檢測，線上報名、加 LINE 確認、付訂金保留名額。" />
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -65,6 +65,7 @@
 
     .card { background:white; border:1px solid var(--line); border-radius:var(--radius); box-shadow:0 18px 60px rgba(7,27,20,.08); }
     .cards-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+    .cards-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:18px; max-width:780px; margin:0 auto; }
     .cards-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
     .mini-card { padding:26px; display:flex; flex-direction:column; }
     .mini-icon { width:52px; height:52px; border-radius:16px; background:linear-gradient(135deg,var(--green-100),#fff); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:18px; }
@@ -163,7 +164,7 @@
         h1 { font-size:42px; } h2 { font-size:31px; }
         .hero-grid { grid-template-columns:1fr; padding:56px 20px 48px; }
         .hero-card { transform:none; }
-        .cards-3, .cards-4, .steps, .form-grid, .foot-inner { grid-template-columns:1fr; }
+        .cards-2, .cards-3, .cards-4, .steps, .form-grid, .foot-inner { grid-template-columns:1fr; }
         .choice-grid { grid-template-columns:1fr; }
         .liff-panel { align-items:flex-start; flex-direction:column; }
         .liff-actions { width:100%; }
@@ -197,7 +198,7 @@
         <div>
             <span class="eyebrow">室內一對一 · 專業教練</span>
             <h1>第一次打高爾夫，<br>掃碼就能約</h1>
-            <p class="hero-subtitle">室內恆溫球室 × 專業教練一對一。新手體驗與揮桿檢測單次 NT$1,500；正式課程一期五堂，線上報名、加 LINE 確認、付訂金保留名額。</p>
+            <p class="hero-subtitle">室內恆溫球室 × 專業教練一對一。新手體驗與揮桿檢測，線上報名、加 LINE 確認、付訂金保留名額。</p>
             <div class="hero-actions">
                 <a href="#booking" class="btn gold">預約體驗課 →</a>
                 <a href="#" data-line class="btn line">加 LINE 好友</a>
@@ -223,16 +224,16 @@
     <div class="section-head">
         <div class="label">Courses</div>
         <h2>選一個最適合你的主題</h2>
-        <p class="lead">體驗課與揮桿檢測皆以單次 NT$1,500 為主；若要持續調整，建議安排一期五堂課，並於一個月內完成。</p>
+        <p class="lead">選擇新手體驗或揮桿檢測，由教練依你的需求安排訓練方向。</p>
     </div>
-    <div class="cards-3">
+    <div class="cards-2">
         <div class="card mini-card course-card">
             <span class="tag">最熱門</span>
             <div class="mini-icon">🏌️</div>
             <h3>新手體驗課</h3>
             <p>第一次接觸高爾夫，從握桿、站姿到第一次揮桿，60 分鐘一對一帶你上手。</p>
             <div class="course-price"><strong>NT$1,500</strong> / 單次</div>
-            <div class="course-meta">適合：完全沒基礎</div>
+            <div class="course-meta">適合：完全沒基礎<br><strong>5 堂課</strong> / 一期<br>須於 1 個月內完成</div>
             <a href="#booking" class="btn gold block" data-course="新手體驗課">選這堂</a>
         </div>
         <div class="card mini-card course-card">
@@ -240,16 +241,8 @@
             <h3>揮桿檢測</h3>
             <p>球打不遠、方向不穩？用數據找出問題點，教練針對性修正你的揮桿。</p>
             <div class="course-price"><strong>NT$1,500</strong> / 單次</div>
-            <div class="course-meta">適合：已有基礎、想進步</div>
+            <div class="course-meta">適合：已有基礎、想進步<br><strong>5 堂課</strong> / 一期<br>須於 1 個月內完成</div>
             <a href="#booking" class="btn secondary block" style="background:var(--green-100);color:var(--green-800);border:none" data-course="揮桿檢測">選這堂</a>
-        </div>
-        <div class="card mini-card course-card">
-            <div class="mini-icon">📈</div>
-            <h3>正式課程一期</h3>
-            <p>依體驗或檢測結果安排訓練主題，連續追蹤動作調整與練習進度。</p>
-            <div class="course-price"><strong>5 堂課</strong> / 一期</div>
-            <div class="course-meta">須於 1 個月內完成</div>
-            <a href="#booking" class="btn secondary block" style="background:var(--green-100);color:var(--green-800);border:none" data-course="正式課程一期">詢問課程</a>
         </div>
     </div>
 </section>
@@ -277,7 +270,7 @@
             <p class="lead">線上選好課程與時段、付訂金保留名額，我們會用 LINE 跟你確認實際時間與地點。</p>
         </div>
         <div class="steps">
-            <div class="step"><div class="n">1</div><h4>選課程</h4><p>選擇體驗課、揮桿檢測，或詢問一期五堂正式課。</p></div>
+            <div class="step"><div class="n">1</div><h4>選課程</h4><p>選擇新手體驗課或揮桿檢測。</p></div>
             <div class="step"><div class="n">2</div><h4>填報名表</h4><p>留下姓名、手機、LINE 與希望的日期時段。</p></div>
             <div class="step"><div class="n">3</div><h4>付訂金</h4><p>線上付訂金保留名額，降低臨時爽約。</p></div>
             <div class="step"><div class="n">4</div><h4>LINE 確認</h4><p>我們對場地檔期後，用 LINE 跟你敲定確切時間。</p></div>
@@ -335,21 +328,14 @@
                                 <input type="radio" name="course" value="新手體驗課" required />
                                 <span class="choice-box">
                                     <span class="choice-title">新手體驗課</span>
-                                    <span class="choice-note">NT$1,500 / 單次，第一次接觸高爾夫。</span>
+                                    <span class="choice-note">NT$1,500 / 單次，第一次接觸高爾夫。<br><strong>5 堂課 / 一期</strong>，須於 1 個月內完成。</span>
                                 </span>
                             </label>
                             <label class="choice">
                                 <input type="radio" name="course" value="揮桿檢測" required />
                                 <span class="choice-box">
                                     <span class="choice-title">揮桿檢測</span>
-                                    <span class="choice-note">NT$1,500 / 單次，找出揮桿問題。</span>
-                                </span>
-                            </label>
-                            <label class="choice">
-                                <input type="radio" name="course" value="正式課程一期" required />
-                                <span class="choice-box">
-                                    <span class="choice-title">正式課程一期</span>
-                                    <span class="choice-note">一期五堂，須於一個月內完成。</span>
+                                    <span class="choice-note">NT$1,500 / 單次，找出揮桿問題。<br><strong>5 堂課 / 一期</strong>，須於 1 個月內完成。</span>
                                 </span>
                             </label>
                         </div>
@@ -440,7 +426,7 @@
     </div>
     <div class="faq">
         <details><summary>完全沒基礎可以上嗎？</summary><p>可以。新手體驗課就是為第一次接觸高爾夫的人設計的，單次費用 NT$1,500，教練會從最基本的握桿與站姿開始。</p></details>
-        <details><summary>正式課程怎麼安排？</summary><p>正式課程建議一期五堂課，須於一個月內完成。實際訓練主題會依體驗課或揮桿檢測結果安排。</p></details>
+        <details><summary>課程怎麼安排？</summary><p>新手體驗課與揮桿檢測皆為一期五堂課，須於一個月內完成。實際訓練主題會依你的需求與教練評估安排。</p></details>
         <details><summary>需要自備球具嗎？</summary><p>不用。球桿、球等器材現場都有提供，穿著方便活動的服裝與運動鞋即可。</p></details>
         <details><summary>訂金怎麼付？可以退嗎？</summary><p>送出報名並經 LINE 確認時間後，我們會提供線上付款連結。課前 24 小時以上可免費改期；因故取消，訂金依規定辦理退款。</p></details>
         <details><summary>可以改期嗎？</summary><p>可以。課前 24 小時以上透過 LINE 告知即可免費改一次。</p></details>
