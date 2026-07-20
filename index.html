@@ -6,6 +6,7 @@
 <title>Golf24 高爾夫學院｜室內一對一．掃碼預約體驗課</title>
 <meta name="description" content="室內恆溫高爾夫球室 × 專業教練一對一。新手體驗、揮桿檢測單次 NT$1,500；正式課程一期五堂，線上報名、加 LINE 確認、付訂金保留名額。" />
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
     :root {
         --green-950:#071b14; --green-900:#0b241a; --green-800:#103727; --green-700:#18543c;
@@ -246,7 +247,7 @@
             <p>依體驗或檢測結果安排訓練主題，連續追蹤動作調整與練習進度。</p>
             <div class="course-price"><strong>5 堂課</strong> / 一期</div>
             <div class="course-meta">須於 1 個月內完成</div>
-            <a href="#booking" class="btn secondary block" style="background:var(--green-100);color:var(--green-800);border:none" data-course="正式課程一期五堂">詢問課程</a>
+            <a href="#booking" class="btn secondary block" style="background:var(--green-100);color:var(--green-800);border:none" data-course="正式課程一期">詢問課程</a>
         </div>
     </div>
 </section>
@@ -343,7 +344,7 @@
                                 </span>
                             </label>
                             <label class="choice">
-                                <input type="radio" name="course" value="正式課程一期五堂" required />
+                                <input type="radio" name="course" value="正式課程一期" required />
                                 <span class="choice-box">
                                     <span class="choice-title">正式課程一期</span>
                                     <span class="choice-note">一期五堂，須於一個月內完成。</span>
@@ -385,9 +386,9 @@
                         <label>希望時段 <span class="req">*</span></label>
                         <select name="time_slot">
                             <option value="">請選擇</option>
-                            <option>上午 (09–12)</option>
-                            <option>下午 (12–18)</option>
-                            <option>晚上 (18–22)</option>
+                            <option value="morning">上午 (09–12)</option>
+                            <option value="afternoon">下午 (12–18)</option>
+                            <option value="evening">晚上 (18–22)</option>
                         </select>
                     </div>
                     <div class="field">
@@ -420,8 +421,8 @@
 
             <div class="thanks" id="thanks">
                 <div class="big">✅</div>
-                <h3>預約資料已準備好！</h3>
-                <p>下一步會接 Supabase，送出後就能正式存入資料庫並通知教練。目前這版先完成 LINE 身分與預約畫面。</p>
+                <h3>預約已送出！</h3>
+                <p id="thanksText">我們已收到你的預約資料，會用 LINE 跟你確認實際上課時間。</p>
                 <a href="#" data-line class="btn line">加 LINE 好友確認時間</a>
                 <a href="#booking" class="btn gold" id="againBtn">重新填寫</a>
             </div>
@@ -479,8 +480,14 @@ const CONFIG = {
     LINE_ADD_URL: "https://line.me/R/ti/p/@455aryoe",
     DEPOSIT_URL: "#",
     PHONE: "09xx-xxx-xxx",
-    LIFF_ID: "2010758780-cTkP4gpX"
+    LIFF_ID: "2010758780-cTkP4gpX",
+    SUPABASE_URL: "https://kmzuvxnemqbwqxyepfqp.supabase.co",
+    SUPABASE_PUBLISHABLE_KEY: "sb_publishable_KqUaBQHQBMGW7T64qla-Dw_aG7EqcEE"
 };
+
+const supabaseClient = window.supabase
+    ? window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_PUBLISHABLE_KEY)
+    : null;
 
 const state = {
     lineProfile: null,
@@ -583,8 +590,15 @@ initLiff();
 const form = document.getElementById('bookingForm');
 const errBox = document.getElementById('formErr');
 const thanks = document.getElementById('thanks');
+const thanksText = document.getElementById('thanksText');
 const bookingPreview = document.getElementById('bookingPreview');
 const againBtn = document.getElementById('againBtn');
+
+function showError(message) {
+    errBox.textContent = message;
+    errBox.classList.add('show');
+    errBox.scrollIntoView({behavior:'smooth', block:'center'});
+}
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -592,8 +606,12 @@ form.addEventListener('submit', async (e) => {
     const data = Object.fromEntries(new FormData(form).entries());
 
     if (!data.name || !data.phone || !data.course || !data.date || !data.time_slot) {
-        errBox.classList.add('show');
-        errBox.scrollIntoView({behavior:'smooth', block:'center'});
+        showError('請填寫必填欄位（課程、姓名、手機、日期、時段）。');
+        return;
+    }
+
+    if (!supabaseClient) {
+        showError('預約系統暫時無法連線，請稍後再試或加 LINE 讓我們協助。');
         return;
     }
 
@@ -608,16 +626,41 @@ form.addEventListener('submit', async (e) => {
 
     const btn = form.querySelector('button[type="submit"]');
     btn.disabled = true;
-    btn.textContent = '準備資料中...';
+    btn.textContent = '送出預約中...';
 
-    localStorage.setItem('golf24_booking_draft', JSON.stringify({
-        ...data,
-        created_at: new Date().toISOString()
-    }));
+    const { data: bookingResult, error } = await supabaseClient.rpc('golf24_submit_booking', {
+        p_line_user_id: data.line_user_id || null,
+        p_line_display_name: data.line_display_name || null,
+        p_line_picture_url: data.line_picture_url || null,
+        p_name: data.name,
+        p_phone: data.phone,
+        p_course_name: data.course,
+        p_coach_name: data.coach || null,
+        p_level: data.level || null,
+        p_preferred_date: data.date,
+        p_preferred_slot: data.time_slot,
+        p_source: data.source || 'LINE LIFF',
+        p_campaign: data.campaign || null,
+        p_note: data.note || null
+    });
+
+    if (error) {
+        console.error('booking submit failed', error);
+        btn.disabled = false;
+        btn.textContent = '送出預約資料 →';
+        showError('預約送出失敗，請稍後再試，或先加 LINE 讓我們協助。');
+        return;
+    }
 
     if (bookingPreview) {
         bookingPreview.textContent = summary;
         bookingPreview.classList.add('show');
+    }
+    if (thanksText) {
+        const bookingNo = bookingResult && bookingResult.booking_id
+            ? `預約編號：${bookingResult.booking_id.slice(0, 8)}`
+            : '預約資料已建立。';
+        thanksText.textContent = `${bookingNo}。我們會用 LINE 跟你確認實際上課時間。`;
     }
     form.style.display = 'none';
     thanks.classList.add('show');
