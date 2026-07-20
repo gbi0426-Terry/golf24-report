@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Golf24 高爾夫學院｜室內一對一．掃碼預約體驗課</title>
 <meta name="description" content="室內恆溫高爾夫球室 × 專業教練一對一。新手體驗、揮桿檢測單次 NT$1,500；正式課程一期五堂，線上報名、加 LINE 確認、付訂金保留名額。" />
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
     :root {
         --green-950:#071b14; --green-900:#0b241a; --green-800:#103727; --green-700:#18543c;
@@ -109,6 +110,24 @@
     textarea { resize:vertical; min-height:88px; }
     .form-hint { font-size:13px; color:var(--muted); margin:6px 0 0; }
     .form-actions { margin-top:26px; }
+    .liff-panel { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px; border:1px solid var(--line); background:#f9fbf8; border-radius:18px; margin-bottom:22px; }
+    .liff-user { display:flex; align-items:center; gap:12px; min-width:0; }
+    .liff-avatar { width:48px; height:48px; border-radius:50%; background:var(--green-100); object-fit:cover; flex:0 0 auto; }
+    .liff-name { font-weight:800; line-height:1.3; }
+    .liff-meta { color:var(--muted); font-size:13px; margin-top:2px; }
+    .liff-actions { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+    .btn.small { min-height:40px; padding:0 14px; font-size:14px; }
+    .choice-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .choice { display:block; cursor:pointer; }
+    .choice input { position:absolute; opacity:0; pointer-events:none; }
+    .choice-box { min-height:112px; border:1px solid var(--line); border-radius:16px; background:#fff; padding:16px; transition:.16s ease; }
+    .choice-title { display:block; font-weight:800; margin-bottom:6px; }
+    .choice-note { display:block; color:var(--muted); font-size:13px; line-height:1.45; }
+    .choice input:checked + .choice-box { border-color:var(--green-700); box-shadow:0 0 0 3px rgba(24,84,60,.12); background:var(--green-100); }
+    .status-pill { display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:700; padding:6px 10px; border-radius:999px; color:var(--green-800); background:var(--green-100); }
+    .status-pill.warn { color:#7a4d00; background:#fff4d7; }
+    .booking-preview { display:none; margin-top:18px; padding:16px; border-radius:16px; background:#f9fbf8; border:1px dashed var(--line); color:var(--muted); font-size:14px; white-space:pre-line; }
+    .booking-preview.show { display:block; }
     .thanks { display:none; text-align:center; padding:20px 4px; }
     .thanks.show { display:block; }
     .thanks .big { font-size:56px; }
@@ -142,6 +161,10 @@
         .hero-grid { grid-template-columns:1fr; padding:56px 20px 48px; }
         .hero-card { transform:none; }
         .cards-3, .cards-4, .steps, .form-grid, .foot-inner { grid-template-columns:1fr; }
+        .choice-grid { grid-template-columns:1fr; }
+        .liff-panel { align-items:flex-start; flex-direction:column; }
+        .liff-actions { width:100%; }
+        .liff-actions .btn { flex:1; }
         .section { padding:52px 20px; }
         .form-card { padding:24px; }
         .nav { display:none; }
@@ -287,7 +310,47 @@
 
         <div class="card form-card">
             <form id="bookingForm" novalidate>
+                <div class="liff-panel" id="liffPanel">
+                    <div class="liff-user">
+                        <img class="liff-avatar" id="liffAvatar" alt="" />
+                        <div>
+                            <div class="liff-name" id="liffName">正在確認 LINE 身分...</div>
+                            <div class="liff-meta" id="liffMeta">從 LINE 開啟時會自動帶入你的 LINE 資訊。</div>
+                        </div>
+                    </div>
+                    <div class="liff-actions">
+                        <button type="button" class="btn line small" id="liffLoginBtn">LINE 登入</button>
+                        <a href="#" data-line class="btn small" style="background:#fff;color:var(--green-800);border-color:var(--line)">加好友</a>
+                    </div>
+                </div>
+
                 <div class="form-grid">
+                    <div class="field full">
+                        <label>想上的課程 <span class="req">*</span></label>
+                        <div class="choice-grid">
+                            <label class="choice">
+                                <input type="radio" name="course" value="新手體驗課" required />
+                                <span class="choice-box">
+                                    <span class="choice-title">新手體驗課</span>
+                                    <span class="choice-note">NT$1,500 / 單次，第一次接觸高爾夫。</span>
+                                </span>
+                            </label>
+                            <label class="choice">
+                                <input type="radio" name="course" value="揮桿檢測" required />
+                                <span class="choice-box">
+                                    <span class="choice-title">揮桿檢測</span>
+                                    <span class="choice-note">NT$1,500 / 單次，找出揮桿問題。</span>
+                                </span>
+                            </label>
+                            <label class="choice">
+                                <input type="radio" name="course" value="正式課程一期五堂" required />
+                                <span class="choice-box">
+                                    <span class="choice-title">正式課程一期</span>
+                                    <span class="choice-note">一期五堂，須於一個月內完成。</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
                     <div class="field">
                         <label>姓名 <span class="req">*</span></label>
                         <input name="name" required placeholder="您的稱呼" />
@@ -297,17 +360,12 @@
                         <input name="phone" required inputmode="tel" placeholder="09xx-xxx-xxx" />
                     </div>
                     <div class="field">
-                        <label>LINE ID</label>
-                        <input name="line_id" placeholder="方便我們用 LINE 聯絡你" />
-                    </div>
-                    <div class="field">
-                        <label>想上的課程 <span class="req">*</span></label>
-                        <select name="course" required>
-                            <option value="">請選擇</option>
-                            <option>新手體驗課</option>
-                            <option>揮桿檢測</option>
-                            <option>正式課程一期五堂</option>
-                            <option>還不確定，想請教練建議</option>
+                        <label>指定教練</label>
+                        <select name="coach">
+                            <option value="">不指定，由店家安排</option>
+                            <option>王教練</option>
+                            <option>李教練</option>
+                            <option>張教練</option>
                         </select>
                     </div>
                     <div class="field">
@@ -320,13 +378,13 @@
                         </select>
                     </div>
                     <div class="field">
-                        <label>希望日期</label>
-                        <input name="date" type="date" />
+                        <label>希望日期 <span class="req">*</span></label>
+                        <input name="date" type="date" required />
                     </div>
                     <div class="field">
-                        <label>希望時段</label>
+                        <label>希望時段 <span class="req">*</span></label>
                         <select name="time_slot">
-                            <option value="">不限</option>
+                            <option value="">請選擇</option>
                             <option>上午 (09–12)</option>
                             <option>下午 (12–18)</option>
                             <option>晚上 (18–22)</option>
@@ -347,20 +405,25 @@
                         <label>備註（想解決的問題、其他需求）</label>
                         <textarea name="note" placeholder="例如：想改善方向不穩、小朋友第一次上課會怕…"></textarea>
                     </div>
+                    <input type="hidden" name="line_user_id" />
+                    <input type="hidden" name="line_display_name" />
+                    <input type="hidden" name="line_picture_url" />
+                    <input type="hidden" name="campaign" />
                 </div>
                 <p class="form-hint">送出即表示同意我們以電話 / LINE 與你聯繫確認上課時間。我們不會將你的資料用於其他用途。</p>
+                <div class="booking-preview" id="bookingPreview"></div>
                 <div class="form-actions">
-                    <button type="submit" class="btn gold block">送出報名，保留我的名額 →</button>
+                    <button type="submit" class="btn gold block">送出預約資料 →</button>
                 </div>
-                <div class="err" id="formErr">請填寫必填欄位（姓名、手機、課程）。</div>
+                <div class="err" id="formErr">請填寫必填欄位（課程、姓名、手機、日期、時段）。</div>
             </form>
 
             <div class="thanks" id="thanks">
                 <div class="big">✅</div>
-                <h3>收到你的報名了！</h3>
-                <p>接下來請加我們的 LINE 好友，我們會在這裡跟你確認上課時間，並提供訂金付款連結。</p>
+                <h3>預約資料已準備好！</h3>
+                <p>下一步會接 Supabase，送出後就能正式存入資料庫並通知教練。目前這版先完成 LINE 身分與預約畫面。</p>
                 <a href="#" data-line class="btn line">加 LINE 好友確認時間</a>
-                <a href="#" data-deposit class="btn gold">前往付訂金</a>
+                <a href="#booking" class="btn gold" id="againBtn">重新填寫</a>
             </div>
         </div>
     </div>
@@ -411,92 +474,166 @@
 </div>
 
 <script>
-/* ============================================================
-   ⚙️  設定區：把下面 5 個值換成你自己的，就能正式上線收單
-   ============================================================ */
 const CONFIG = {
-    // 1) Formspree 表單 ID：到 https://formspree.io 免費註冊，建立表單後把 xxxxxxx 換掉。
-    //    留成 "YOUR_FORMSPREE_ID" 時，會自動改用「開啟 Email 寄給店家」的備援方式。
-    FORMSPREE_ID: "YOUR_FORMSPREE_ID",
-
-    // 2) 沒設定 Formspree 時的備援收件 Email
     OWNER_EMAIL: "gbi0426@gmail.com",
-
-    // 3) LINE 加好友連結：@ 後面換成你的官方帳號 ID（例：https://line.me/R/ti/p/@golf24）
-    LINE_ADD_URL: "https://line.me/R/ti/p/@YOUR_LINE_ID",
-
-    // 4) 綠界 / 藍新 收訂金的付款連結（可先留 # ，之後再補）
+    LINE_ADD_URL: "https://line.me/R/ti/p/@455aryoe",
     DEPOSIT_URL: "#",
-
-    // 5) 聯絡電話
-    PHONE: "09xx-xxx-xxx"
+    PHONE: "09xx-xxx-xxx",
+    LIFF_ID: "2010758780-cTkP4gpX"
 };
 
-/* -------- 套用設定到頁面連結 -------- */
-document.querySelectorAll('[data-line]').forEach(a => a.href = CONFIG.LINE_ADD_URL);
-document.querySelectorAll('[data-line]').forEach(a => a.target = '_blank');
-document.querySelectorAll('[data-deposit]').forEach(a => { a.href = CONFIG.DEPOSIT_URL; if (CONFIG.DEPOSIT_URL !== '#') a.target = '_blank'; });
-document.querySelectorAll('[data-phone]').forEach(a => { a.href = 'tel:' + CONFIG.PHONE.replace(/[^0-9+]/g,''); a.textContent = '電話：' + CONFIG.PHONE; });
+const state = {
+    lineProfile: null,
+    isInClient: false,
+    isFriend: null
+};
 
-/* -------- 課程按鈕：自動帶入表單課程欄位 -------- */
+document.querySelectorAll('[data-line]').forEach(a => {
+    a.href = CONFIG.LINE_ADD_URL;
+    a.target = '_blank';
+});
+document.querySelectorAll('[data-phone]').forEach(a => {
+    a.href = 'tel:' + CONFIG.PHONE.replace(/[^0-9+]/g,'');
+    a.textContent = '電話：' + CONFIG.PHONE;
+});
+
 document.querySelectorAll('[data-course]').forEach(btn => {
     btn.addEventListener('click', () => {
-        const sel = document.querySelector('select[name="course"]');
-        if (sel) sel.value = btn.getAttribute('data-course');
+        const course = btn.getAttribute('data-course');
+        const input = document.querySelector(`input[name="course"][value="${course}"]`);
+        if (input) input.checked = true;
     });
 });
 
-/* -------- 表單送出 -------- */
+const dateInput = document.querySelector('input[name="date"]');
+if (dateInput) {
+    const today = new Date();
+    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+    dateInput.min = today.toISOString().slice(0, 10);
+}
+
+const params = new URLSearchParams(window.location.search);
+const campaignInput = document.querySelector('input[name="campaign"]');
+if (campaignInput) campaignInput.value = params.get('campaign') || params.get('source') || '';
+
+const liffName = document.getElementById('liffName');
+const liffMeta = document.getElementById('liffMeta');
+const liffAvatar = document.getElementById('liffAvatar');
+const liffLoginBtn = document.getElementById('liffLoginBtn');
+
+function setLiffStatus(name, meta, avatarUrl = '') {
+    if (liffName) liffName.textContent = name;
+    if (liffMeta) liffMeta.textContent = meta;
+    if (liffAvatar) {
+        liffAvatar.src = avatarUrl;
+        liffAvatar.style.display = avatarUrl ? 'block' : 'none';
+    }
+}
+
+function applyLineProfile(profile) {
+    state.lineProfile = profile;
+    document.querySelector('input[name="line_user_id"]').value = profile.userId || '';
+    document.querySelector('input[name="line_display_name"]').value = profile.displayName || '';
+    document.querySelector('input[name="line_picture_url"]').value = profile.pictureUrl || '';
+    setLiffStatus(profile.displayName || 'LINE 使用者', '已連動 LINE 身分，送出時會一起帶入會員資料。', profile.pictureUrl);
+}
+
+async function initLiff() {
+    if (!window.liff) {
+        setLiffStatus('LINE SDK 載入中', '若一直沒有變化，請從 LINE App 開啟預約連結。');
+        return;
+    }
+
+    try {
+        await liff.init({ liffId: CONFIG.LIFF_ID });
+        state.isInClient = liff.isInClient();
+
+        if (!liff.isLoggedIn()) {
+            setLiffStatus('尚未 LINE 登入', '請先登入 LINE，系統才能自動帶入你的 LINE 身分。');
+            if (liffLoginBtn) {
+                liffLoginBtn.style.display = 'inline-flex';
+                liffLoginBtn.addEventListener('click', () => liff.login({ redirectUri: window.location.href }));
+            }
+            return;
+        }
+
+        const profile = await liff.getProfile();
+        applyLineProfile(profile);
+        if (liffLoginBtn) liffLoginBtn.style.display = 'none';
+
+        if (typeof liff.getFriendship === 'function') {
+            try {
+                const friendship = await liff.getFriendship();
+                state.isFriend = Boolean(friendship.friendFlag);
+                if (!state.isFriend && liffMeta) {
+                    liffMeta.textContent = '已連動 LINE 身分。建議先加官方帳號，方便收到預約確認。';
+                }
+            } catch (_) {
+                state.isFriend = null;
+            }
+        }
+    } catch (error) {
+        console.warn('LIFF init failed', error);
+        setLiffStatus('LINE 連動尚未完成', '請確認目前網址是 LIFF Endpoint，或從 LINE 官方帳號的預約連結進入。');
+    }
+}
+
+initLiff();
+
 const form = document.getElementById('bookingForm');
 const errBox = document.getElementById('formErr');
 const thanks = document.getElementById('thanks');
+const bookingPreview = document.getElementById('bookingPreview');
+const againBtn = document.getElementById('againBtn');
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     errBox.classList.remove('show');
     const data = Object.fromEntries(new FormData(form).entries());
 
-    if (!data.name || !data.phone || !data.course) {
+    if (!data.name || !data.phone || !data.course || !data.date || !data.time_slot) {
         errBox.classList.add('show');
         errBox.scrollIntoView({behavior:'smooth', block:'center'});
         return;
     }
 
     const summary =
-        `【Golf24 體驗課報名】\n` +
-        `姓名：${data.name}\n手機：${data.phone}\nLINE：${data.line_id||'-'}\n` +
-        `課程：${data.course}\n程度：${data.level||'-'}\n` +
-        `希望日期：${data.date||'-'} ${data.time_slot||''}\n` +
-        `來源：${data.source||'-'}\n備註：${data.note||'-'}`;
+        `【Golf24 預約資料】\n` +
+        `LINE：${data.line_display_name || '尚未取得'}\n` +
+        `LINE userId：${data.line_user_id || '尚未取得'}\n` +
+        `姓名：${data.name}\n手機：${data.phone}\n` +
+        `課程：${data.course}\n指定教練：${data.coach || '不指定'}\n程度：${data.level || '-'}\n` +
+        `希望日期：${data.date} ${data.time_slot}\n` +
+        `來源：${data.source || '-'}\nCampaign：${data.campaign || '-'}\n備註：${data.note || '-'}`;
 
     const btn = form.querySelector('button[type="submit"]');
-    btn.disabled = true; btn.textContent = '送出中…';
+    btn.disabled = true;
+    btn.textContent = '準備資料中...';
 
-    let ok = false;
-    if (CONFIG.FORMSPREE_ID && CONFIG.FORMSPREE_ID !== 'YOUR_FORMSPREE_ID') {
-        try {
-            const res = await fetch('https://formspree.io/f/' + CONFIG.FORMSPREE_ID, {
-                method:'POST',
-                headers:{'Accept':'application/json'},
-                body:new FormData(form)
-            });
-            ok = res.ok;
-        } catch(_) { ok = false; }
+    localStorage.setItem('golf24_booking_draft', JSON.stringify({
+        ...data,
+        created_at: new Date().toISOString()
+    }));
+
+    if (bookingPreview) {
+        bookingPreview.textContent = summary;
+        bookingPreview.classList.add('show');
     }
-
-    if (!ok) {
-        // 備援：開啟使用者的信箱，預填好報名內容寄給店家
-        const subject = encodeURIComponent('Golf24 體驗課報名 - ' + data.name);
-        const body = encodeURIComponent(summary);
-        window.location.href = `mailto:${CONFIG.OWNER_EMAIL}?subject=${subject}&body=${body}`;
-    }
-
-    // 顯示感謝畫面（無論走哪條路徑都引導加 LINE）
     form.style.display = 'none';
     thanks.classList.add('show');
     thanks.scrollIntoView({behavior:'smooth', block:'center'});
-    btn.disabled = false; btn.textContent = '送出報名，保留我的名額 →';
+    btn.disabled = false;
+    btn.textContent = '送出預約資料 →';
 });
+
+if (againBtn) {
+    againBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        thanks.classList.remove('show');
+        form.style.display = '';
+        form.scrollIntoView({behavior:'smooth', block:'center'});
+    });
+}
 </script>
 </body>
 </html>

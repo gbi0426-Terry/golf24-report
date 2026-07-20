@@ -36,6 +36,13 @@ LIFF URL: https://liff.line.me/2010758780-cTkP4gpX
 Endpoint URL: https://golf24-report.vercel.app/
 ```
 
+目前開發進度：
+
+- `index.html` 已加入 LIFF SDK 與 `LIFF_ID=2010758780-cTkP4gpX`。
+- 學員端已可顯示 LINE 登入狀態，登入後取得 `line_user_id`、`display_name`、`picture_url` 並帶入表單 hidden 欄位。
+- 預約畫面已改成「選課程 → 指定教練（可選）→ 選日期 / 上午下午晚上 → 填姓名手機」。
+- 送出後目前先建立瀏覽器本機預約草稿；下一步才接 Supabase `members` / `bookings` 正式寫入。
+
 現有 GitHub Pages `index.html` 只作為 Phase 0 展示頁與設計參考；正式預約系統要部署到可執行後端的環境（建議 Vercel）。
 
 | 角色 | 能做什麼 |
