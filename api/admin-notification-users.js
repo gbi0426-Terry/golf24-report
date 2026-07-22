@@ -100,13 +100,16 @@ async function saveUser(body) {
     const lineUserId = clean(body.line_user_id);
 
     if (!name) throw new Error('請填姓名');
-    if (!lineUserId || !lineUserId.startsWith('U')) {
+    if (type === 'admin' && (!lineUserId || !lineUserId.startsWith('U'))) {
+        throw new Error('LINE userId 必須是 U 開頭');
+    }
+    if (type === 'coach' && lineUserId && !lineUserId.startsWith('U')) {
         throw new Error('LINE userId 必須是 U 開頭');
     }
 
     const payload = {
         name,
-        line_user_id: lineUserId,
+        line_user_id: lineUserId || null,
         notify_enabled: Boolean(body.notify_enabled),
         status: clean(body.status) || 'active'
     };
