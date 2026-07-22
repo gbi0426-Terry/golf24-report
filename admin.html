@@ -32,6 +32,7 @@
     <main>
         <header class="topbar"><h1 id="pageTitle">預約管理</h1><a href="/" target="_blank">查看報名頁</a></header>
         <div class="content">
+            <div id="localPreviewWarning" class="notice err" style="margin:0 0 20px">你目前開啟的是本機預覽，無法讀取正式預約與通知資料。請改用 <a href="https://golf24-report.vercel.app/admin.html">https://golf24-report.vercel.app/admin.html</a></div>
             <section id="bookings" class="view active">
                 <div class="intro"><h2>預約管理</h2><p>查看所有報名資料，確認後可直接更新預約狀態與內部備註。</p></div>
                 <div class="toolbar"><div class="tools"><input id="bookingPin" type="password" placeholder="輸入管理密碼 ADMIN_PIN" style="width:260px" /><button class="btn" id="loadBookings">讀取預約資料</button></div><div id="bookingSummary" class="summary"></div></div>
@@ -83,7 +84,7 @@ document.getElementById('loadPeople').onclick=loadPeople;document.getElementById
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{currentTab=b.dataset.tab;document.querySelectorAll('[data-tab]').forEach(t=>t.classList.toggle('active',t===b));renderPeople()});
 peopleWrap.onclick=async e=>{const type=e.target.dataset.type,id=e.target.dataset.edit||e.target.dataset.disable;if(!id)return;try{const rows=type==='admin'?people.admins:people.coaches,row=rows.find(v=>v.id===id);if(e.target.dataset.edit){personForm.elements.id.value=row.id;personForm.elements.type.value=type;personForm.elements.name.value=row.name||'';personForm.elements.line_user_id.value=row.line_user_id||'';personForm.elements.notify_enabled.checked=!!row.notify_enabled;personForm.elements.active.checked=row.status==='active';if(type==='admin')personForm.elements.role.value=row.role||'operator';else personForm.elements.specialty.value=row.specialty||'';typeFields();window.scrollTo({top:0,behavior:'smooth'})}else if(confirm('確定要停用這位通知對象？')){await api('/api/admin-notification-users',{method:'DELETE',body:JSON.stringify({type,id})});await loadPeople()}}catch(err){show(peopleMessage,err.message,true)}};
 personForm.onsubmit=async e=>{e.preventDefault();try{keepPin();const f=personForm.elements,p={id:f.id.value.trim(),type:f.type.value,name:f.name.value.trim(),line_user_id:f.line_user_id.value.trim(),notify_enabled:f.notify_enabled.checked,status:f.active.checked?'active':'inactive',role:f.role.value,specialty:f.specialty.value.trim()};await api('/api/admin-notification-users',{method:'POST',body:JSON.stringify(p)});resetForm();await loadPeople();show(peopleMessage,'已儲存')}catch(err){show(peopleMessage,err.message,true)}};
-personForm.elements.pin.value=localStorage.getItem('golf24_admin_pin')||'';bookingPin.value=localStorage.getItem('golf24_admin_pin')||'';typeFields();
+personForm.elements.pin.value=localStorage.getItem('golf24_admin_pin')||'';bookingPin.value=localStorage.getItem('golf24_admin_pin')||'';document.getElementById('localPreviewWarning').classList.toggle('show',location.protocol==='file:');typeFields();
 </script>
 </body>
 </html>
