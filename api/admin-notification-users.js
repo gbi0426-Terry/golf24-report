@@ -1,6 +1,10 @@
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const ADMIN_PIN = process.env.ADMIN_PIN;
+const SYSTEM_NOTIFY_USER_IDS = (process.env.LINE_NOTIFY_USER_IDS || '')
+    .split(',')
+    .map((id) => id.trim())
+    .filter(Boolean);
 
 function json(res, status, body) {
     res.status(status).setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -75,9 +79,16 @@ async function listUsers() {
         })
     ]);
 
+    const savedRecipientIds = new Set([
+        ...admins.map((admin) => admin.line_user_id),
+        ...coaches.map((coach) => coach.line_user_id)
+    ].filter(Boolean));
+
     return {
         admins: Array.isArray(admins) ? admins : [],
-        coaches: Array.isArray(coaches) ? coaches : []
+        coaches: Array.isArray(coaches) ? coaches : [],
+        // These recipients are configured in Vercel and already receive new-booking alerts.
+        systemRecipients: SYSTEM_NOTIFY_USER_IDS.filter((id) => !savedRecipientIds.has(id))
     };
 }
 
