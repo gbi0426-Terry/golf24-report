@@ -347,13 +347,6 @@
                         <input name="phone" required inputmode="tel" placeholder="09xx-xxx-xxx" />
                     </div>
                     <div class="field">
-                        <label>指定教練</label>
-                        <select name="coach">
-                            <option value="">不指定，由店家安排</option>
-                            <option>古教練</option>
-                        </select>
-                    </div>
-                    <div class="field">
                         <label>目前程度</label>
                         <select name="level">
                             <option value="">請選擇</option>
@@ -656,6 +649,7 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
     errBox.classList.remove('show');
     const data = Object.fromEntries(new FormData(form).entries());
+    data.coach = '古教練';
     const missingFields = getMissingFields(data);
 
     if (missingFields.length > 0) {
@@ -669,7 +663,7 @@ form.addEventListener('submit', async (e) => {
         `LINE：${data.line_display_name || '尚未取得'}\n` +
         `LINE userId：${data.line_user_id || '尚未取得'}\n` +
         `姓名：${data.name}\n手機：${data.phone}\n` +
-        `課程：${data.course}\n指定教練：${data.coach || '不指定'}\n程度：${data.level || '-'}\n` +
+        `課程：${data.course}\n教練：${data.coach}\n程度：${data.level || '-'}\n` +
         `希望日期：${data.date} ${data.time_slot}\n` +
         `來源：${data.source || '-'}\nCampaign：${data.campaign || '-'}\n備註：${data.note || '-'}`;
 

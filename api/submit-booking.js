@@ -145,7 +145,7 @@ export default async function handler(req, res) {
             p_name: firstString(body.name),
             p_phone: firstString(body.phone),
             p_course_name: firstString(body.course),
-            p_coach_name: firstString(body.coach) || null,
+            p_coach_name: firstString(body.coach) || '古教練',
             p_level: firstString(body.level) || null,
             p_preferred_date: firstString(body.date),
             p_preferred_slot: firstString(body.time_slot),
