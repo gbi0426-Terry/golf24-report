@@ -347,6 +347,12 @@
                         <input name="phone" required inputmode="tel" placeholder="09xx-xxx-xxx" />
                     </div>
                     <div class="field">
+                        <label>指定教練</label>
+                        <select name="coach" id="coachSelect" disabled>
+                            <option>載入教練名單中...</option>
+                        </select>
+                    </div>
+                    <div class="field">
                         <label>目前程度</label>
                         <select name="level">
                             <option value="">請選擇</option>
@@ -469,6 +475,36 @@ const state = {
     isInClient: false,
     isFriend: null
 };
+
+const coachSelect = document.getElementById('coachSelect');
+async function loadActiveCoaches() {
+    if (!coachSelect) return;
+    let coaches = [];
+    if (supabaseClient) {
+        const { data, error } = await supabaseClient
+            .from('golf24_coaches')
+            .select('name')
+            .eq('status', 'active')
+            .order('created_at', { ascending: true });
+        if (!error && Array.isArray(data)) coaches = data.map((coach) => coach.name).filter(Boolean);
+    }
+    if (!coaches.length) coaches = ['古教練'];
+    coaches = [...new Set(coaches)];
+    coachSelect.replaceChildren();
+    const unassignedOption = document.createElement('option');
+    unassignedOption.value = '';
+    unassignedOption.textContent = '不指定，由店家安排';
+    coachSelect.append(unassignedOption);
+    coaches.forEach((name) => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        coachSelect.append(option);
+    });
+    coachSelect.disabled = false;
+    if (coaches.length === 1) coachSelect.value = coaches[0];
+}
+loadActiveCoaches();
 
 document.querySelectorAll('[data-line]').forEach(a => {
     a.href = CONFIG.LINE_ADD_URL;
@@ -649,7 +685,6 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
     errBox.classList.remove('show');
     const data = Object.fromEntries(new FormData(form).entries());
-    data.coach = '古教練';
     const missingFields = getMissingFields(data);
 
     if (missingFields.length > 0) {
